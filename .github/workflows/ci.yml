@@ -31,8 +31,8 @@ jobs:
       - run: make check
 
   images:
-    # Only on main, and only once the Dockerfile exists.
-    if: github.event_name == 'push' && hashFiles('docker/Dockerfile') != ''
+    # Only on pushes to main. (hashFiles() isn't allowed in a job-level if.)
+    if: github.event_name == 'push'
     needs: check
     runs-on: ubuntu-24.04
     permissions:
