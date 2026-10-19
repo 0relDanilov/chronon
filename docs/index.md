@@ -5,8 +5,9 @@ time-shared quantum-datacenter platform. It is not affiliated with, endorsed
 by, or connected to IQCC or Quantum Machines, and it never contacts their
 services. The "device" is a simulation.
 
-**Status:** scaffold. The layout, the static gates and the client contract
-summary exist; services and cluster manifests don't yet.
+**Status:** rung 1. The local site runs (kind, Cilium, Argo CD and the
+platform components), and the API serves `/healthz` over TLS with HTTP/2.
+The task and state services don't exist yet.
 
 - [Architecture](architecture.md): what lives where.
 - [Client contract](contract.md): the API the unmodified client expects, with

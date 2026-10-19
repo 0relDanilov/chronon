@@ -4,8 +4,10 @@ chronon is an independent learning project built over two days to understand the
 
 ## Status
 
-Scaffold only. The repository layout, static gates and the client contract
-summary exist; no services or cluster manifests do yet. `docs/build-log.md`
+Rung 1: the local site runs on kind, with Cilium (kube-proxy replacement,
+Gateway API with TLS and HTTP/2, Hubble) and Argo CD syncing cert-manager,
+the CNPG operator, Valkey and Argo Workflows from git. The API serves only
+`/healthz` so far. `docs/build-log.md`
 records progress as it happens.
 
 ## Quick start
@@ -14,7 +16,13 @@ records progress as it happens.
 uv sync --extra dev   # Python 3.12 environment, including the real client
 make check            # format, lint, types, unit tests, manifest and domain gates
 make help             # all targets
+make up-local         # kind + Cilium + Argo CD; then Argo CD syncs the rest
+make ca               # export the site's CA to .certs/ca.pem
+curl --http2 --cacert .certs/ca.pem https://api.chronon.test:8443/healthz
 ```
+
+The local hostnames need `/etc/hosts` entries:
+`127.0.0.1 api.chronon.test state.chronon.test argocd.chronon.test hubble.chronon.test`.
 
 ## Layout
 

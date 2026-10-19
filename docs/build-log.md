@@ -58,3 +58,64 @@ import the patch themselves) plus an OS-level hosts sinkhole. A second
 finding from the same discussion: any `calibrator` could push a
 `qmm_capabilities` dataset, which the client unpickles. The state service
 will refuse writes of reserved types (`docs/contract.md`).
+
+## Mon 19 Oct 2026: rung 1, the local site
+
+**20:15 · argocd CLI skew.** Homebrew's `argocd` was 2.14.5, and the server is
+v3.5.5. Installed the v3.5.5 binary (checksum verified) and ran `brew unlink
+argocd` (reversible with `brew link argocd`), because `/usr/local/bin` comes
+before `~/.local/bin` on PATH.
+
+**20:18 · Two upstream facts checked before writing manifests.**
+`helm show values cilium/cilium --version 1.20.3`: `enableAlpn: false` by
+default, and `gatewayClass.create: auto` creates the GatewayClass only if the
+Gateway API CRDs already exist, so the CRDs go first. Argo CD v3.5.5 docs
+(`operator-manual/health.md`): Application health was removed in 1.8 and must
+be restored for app-of-apps sync waves. The bootstrap patches `argocd-cm`.
+
+**20:28 · CI rejected the workflow file.** Root cause: `hashFiles()` isn't
+allowed in a job-level `if:` (only status functions are), so GitHub failed the
+whole file before any job ran. Fix: drop the condition; the Dockerfile exists.
+
+**20:29 · Committed an editor swap file** (`src/chronon/api/.app.py.swp`,
+from vim). Untracked it, kept it on disk, and now ignore `*.swp`. Prevention:
+look at `git status` before `git add -A`.
+
+**20:30 · `kind load` failed for `valkey/valkey:8.1.10`:** `ctr: content
+digest sha256:d2a1…: not found`. Root cause: Docker Desktop uses the
+containerd image store (`docker info`: `io.containerd.snapshotter.v1`), which
+keeps a multi-platform image's index but only the amd64 layers. kind exports
+the index, and `ctr import --all-platforms` on the node looks for the missing
+platforms. Images we build (`chronon:dev`) are single-platform and load fine.
+Fix: the nodes pull the one Docker Hub image themselves (one image, one
+replica, far under the anonymous rate limit). Rejected: retagging a locally
+rebuilt single-platform copy under the upstream tag.
+
+**20:36 · `valkey` and `chronon` OutOfSync right after "successfully synced".**
+Root cause: fields the API server defaults (StatefulSet claim-template fields,
+the HTTPRoute's default `PathPrefix /` match) aren't in git. Argo's diff for
+SSA apps (structured-merge) reports them as drift. Fix: Server-Side Diff
+(`controller.diff.server.side: "true"`, stable since v3.1), plus a controller
+restart.
+
+**20:45 · Sync-wave deadlock.** `chronon` (wave 1) stayed Progressing, so
+the `gateway` app (wave 2) was never created. Root cause: an HTTPRoute is
+Progressing until a Gateway accepts it, and its Gateway was in a later wave.
+Fix: Gateway to wave 0 (it only needs the wave −1 certificate); routes stay
+with their services. The in-flight root sync was pinned to the old revision,
+so it needed `argocd app terminate-op root`. Side lesson: since Argo CD 3.0,
+per-resource health isn't stored in `.status.resources`; use `argocd app get`.
+
+**20:51 · Rung 1 DoD passes.** `curl --http2 -v --cacert .certs/ca.pem
+https://api.chronon.test:8443/healthz` → `ALPN: server accepted h2`,
+`SSL certificate verify ok`, `HTTP/2 200`. The client's transport
+(`httpx.Client(http2=True, http1=False)`) also gets `HTTP/2 200`.
+`argocd app list`: 8/8 Synced/Healthy. `cilium status`: OK. Hubble UI: HTTP
+200 over a port-forward.
+
+**Numbers**
+- kind create (3 nodes, v1.37.0): 91 s; Cilium to `status OK`: 200 s
+  (bootstrap stage stamps, `.logs/bootstrap-1.log`).
+- Argo CD install and rollout: 109 s; full bootstrap re-run on an existing
+  cluster: 156 s (`.logs/bootstrap-2.log`).
+- `docker build --target base`: 1 min 19 s cold (`time docker build …`).
