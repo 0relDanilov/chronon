@@ -664,6 +664,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/rehearsal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rehearsal and overhead
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1307,7 +1335,12 @@ keys of a backend would need one hash tag, <code>{sim-qpu}</code>, to stay on on
 <td><code>pytest tests/unit/test_queue.py</code></td>
 </tr>
 <tr>
-<td>Rehearsal, p50/p95 wait, greedy share (FIFO vs fair, 50 users)</td>
+<td>Smoke rehearsal, 5 students + greedy (20 runs): student wait p50/p95; greedy share until last student</td>
+<td>fifo 60.1/63.6 s, 79.7%; fair 9.5/15.4 s, 32.8%</td>
+<td><code>make rehearsal MODE=fifo USERS=5</code> / <code>MODE=fair</code>, Mon 23:42</td>
+</tr>
+<tr>
+<td>Rehearsal, 50 students</td>
 <td><em>Tuesday</em></td>
 <td><code>make rehearsal MODE=fifo</code> / <code>MODE=fair</code></td>
 </tr>

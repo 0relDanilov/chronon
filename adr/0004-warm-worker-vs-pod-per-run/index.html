@@ -11,7 +11,7 @@
       
       
       
-        <link rel="prev" href="../../components/sim-qpu/">
+        <link rel="prev" href="../../components/rehearsal/">
       
       
         <link rel="next" href="../0005-fair-scheduling/">
@@ -664,6 +664,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/rehearsal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rehearsal and overhead
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1297,9 +1325,14 @@ cost is amortized over minutes (the Stark-map backend).</p>
 <td><code>qc.run("t1", {"qubit": 0})</code> at 23:23</td>
 </tr>
 <tr>
-<td>Pod per run vs warm worker: mean and p95, submit→start and total, 10 runs each</td>
+<td>Smoke (2 runs each, not a measurement): submit→start · submit→done</td>
+<td>warm 0.24 s · 2.85 s; pod per run 11.46 s · 17.34 s (clock skew +70 ms)</td>
+<td><code>overhead.py --runs 2</code>, Mon 23:47</td>
+</tr>
+<tr>
+<td>Pod per run vs warm worker: mean and p95, 10 runs each</td>
 <td><em>to be measured Tuesday</em></td>
-<td><code>uv run --extra dev python scripts/rehearsal/overhead.py</code></td>
+<td><code>uv run --extra dev python scripts/rehearsal/overhead.py --runs 10</code></td>
 </tr>
 </tbody>
 </table>
