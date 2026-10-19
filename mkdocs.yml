@@ -45,7 +45,10 @@ nav:
       - chronon-state: components/state.md
       - Postgres: components/postgres.md
       - Valkey: components/valkey.md
+      - sim-qpu device: components/sim-qpu.md
   - Decisions (ADRs):
+      - 0004 Warm worker vs pod per run: adr/0004-warm-worker-vs-pod-per-run.md
+      - 0005 Fair scheduling: adr/0005-fair-scheduling.md
       - 0002 GitOps topology: adr/0002-gitops-topology.md
       - 0003 No secrets in git: adr/0003-no-secrets-in-git.md
       - 0006 Gateway host network: adr/0006-gateway-host-network.md

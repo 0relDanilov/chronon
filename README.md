@@ -4,11 +4,12 @@ chronon is an independent learning project built over two days to understand the
 
 ## Status
 
-Rungs 1–2: the local site runs on kind, with Cilium (kube-proxy replacement,
+Rungs 1–3: the local site runs on kind, with Cilium (kube-proxy replacement,
 Gateway API with TLS and HTTP/2, Hubble) and Argo CD syncing cert-manager,
 CloudNativePG, Valkey and Argo Workflows from git. The task API and state
 service pass the contract test with the unmodified client (`make contract`).
-The simulated device (rung 3) isn't built yet. `docs/build-log.md`
+The simulated device `sim-qpu` runs `t1` and `calibrate` with fifo or fair
+scheduling; `notebooks/demo.ipynb` drives it with the real client. `docs/build-log.md`
 records progress as it happens.
 
 ## Quick start

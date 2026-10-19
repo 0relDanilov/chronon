@@ -180,3 +180,54 @@ plotting, JSON on every error, and polls served from Valkey.
 - Seed: 0.3 s (`kubectl -n chronon logs job/chronon-seed`).
 - `chronon_db_reads_total{path="poll"}` = 3 after three contract runs, all
   from the deliberate lookup of a nonexistent task id. Polls of real tasks: 0.
+
+## Mon 19 Oct 2026: rung 3, the simulated device (overnight)
+
+**23:15 · The fit's uncertainty is honest.** Over 200 simulated T1 runs (true
+T1 60 µs, 25 points × 500 shots), the fitted T1 fell within ±2σ of the truth
+in 95.5% of runs, against 95.4% expected for a correct Gaussian error.
+`curve_fit` takes 4.5 ms per fit. (One-off script, seed 7; the unit test
+checks 3σ coverage ≥ 97/100.)
+
+**23:18 · Queue unit tests run the real Lua.** `fakeredis[lua]` (lupa 2.8)
+executes the same push/pop scripts as Valkey: fairness order, cap, fifo, mode
+switch, revoke, crash requeue. 35 unit tests in 8.7 s.
+
+**23:21 · PodSecurity check by server-side dry run.** `kubectl label
+--dry-run=server ns chronon pod-security.kubernetes.io/enforce=restricted`
+listed only `valkey-0` as violating (no seccomp, capabilities, runAsNonRoot,
+allowPrivilegeEscalation). Fixed in its manifest. The enforce label itself
+isn't applied yet.
+
+**23:22 · The worker publishes its own summary at startup.** The summary is
+defined in code (`chronon.backends`), so a new workflow arrives with a new
+image, and git-triggered hooks don't see image-only changes. The worker runs the
+idempotent seed when it starts: `published sim-qpu: summary`, then `sim-qpu
+worker ready`.
+
+**23:23 · First real-client T1 on the device:** `T1 = 59.7 ± 2.4 µs`; the
+client printed the result, both timings and `mxc temperature = 0.0118 K
+measured just now`, so the `__fridge_info` shape works. Wall 3.6 s (2.08 s
+device + 0.7 s reconfigure/reset + 1 s poll granularity).
+
+**23:23 · Three calibrations → three linked datasets** (2 → 10 → 11 → 12, T1
+56.5 / 60.7 / 61.9 µs), and `qc.state.trend("$.qubits[0].t1",
+terminal_output=True)` drew the client's own terminal plot. A student calling
+`calibrate` got the 403 with its detail.
+
+**23:30 · The notebook runs end to end** (nbclient: 4 code cells, 0 errors,
+1 figure, 68 s mostly kernel start and the client's `qm` import). Its saved
+outputs contain no tokens (`grep -c eyJ` → 0).
+
+**23:35 · Cap and revoke on the live cluster.** Seven rapid submits by one
+student in fair mode → `[200, 200, 200, 200, 200, 200, 429]`; the device had
+already taken the first, and the cap counts queued runs only. Detail: "You
+already have 5 runs queued on sim-qpu, the per-user limit in fair mode. …".
+Revoking a queued run → `REVOKED` at once; the rest → `SUCCESS`.
+
+**Numbers**
+- Default `t1`: 1.387 s raw device time × 1.5 time scale = 2.08 s; plus 0.7 s
+  reconfigure/reset (`physics.device_seconds`).
+- Fair order, 20 greedy queued then 5 users × 1: the last of the 5 is served at
+  pop 6; in fifo, after all 20 (`tests/unit/test_queue.py` plus a one-off
+  check).

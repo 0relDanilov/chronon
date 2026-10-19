@@ -1,0 +1,37 @@
+# ADR-0004: A warm worker for short exclusive runs; Argo Workflows for long or parallel work
+
+**Status:** accepted (draft; numbers pending) · Mon 19 Oct 2026
+
+## Context
+
+Device runs are short (≈3 s including reconfigure and reset) and exclusive (one
+at a time). Some work is long and parallel instead, like the Stark-map fan-out.
+The client's task states (`PENDING`, `RECEIVED`, `STARTED`, `SUCCESS`, …) look
+like a Celery-style task queue, and the client never says how runs are
+executed.
+
+## Options
+
+| Option | Where it breaks |
+|---|---|
+| **A. One warm, long-lived worker per device, fed by a Valkey queue** | The worker is a single process: its health is the device's availability. Mitigated by the liveness probe and the crash-safe processing list. |
+| B. A pod per run (Argo Workflows, `synchronization.mutexes` for exclusivity) | Every run pays pod scheduling, image start and Python import time, which can exceed a 3 s run. |
+| C. Celery workers | The same shape as A, with a framework around it; more moving parts than one loop and two Lua scripts. |
+| D. A sidecar per user session | Isolation per user, but the device can still be driven by only one of them at a time. |
+
+## Decision
+
+A for device runs; Argo Workflows (B) for long, parallel jobs where startup
+cost is amortized over minutes (the Stark-map backend).
+
+## Consequences
+
+- Device time isn't spent on pod startup between users.
+- The worker publishes its own summary and re-queues stranded tasks on start.
+
+## Measured numbers
+
+| What | Value | Command |
+|---|---|---|
+| Warm worker, one default `t1` run, submit to SUCCESS seen by the client | 3.6 s wall (2.08 s device + 0.7 s reconfigure and reset + 1 s poll granularity) | `qc.run("t1", {"qubit": 0})` at 23:23 |
+| Pod per run vs warm worker: mean and p95, submit→start and total, 10 runs each | *to be measured Tuesday* | `uv run --extra dev python scripts/rehearsal/overhead.py` |
