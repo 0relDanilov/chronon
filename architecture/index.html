@@ -582,6 +582,118 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    chronon-api
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    chronon-state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/postgres/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Postgres
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/valkey/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valkey
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -753,6 +865,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0008-valkey/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0008 Valkey
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0009-postgres-cnpg-jsonb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0009 Postgres on CNPG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0012-token-semantics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0012 Token semantics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -869,7 +1065,7 @@
 
 
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p><strong>Status:</strong> the local site (rung 1) exists: kind, Cilium, Argo CD, cert-manager, the CNPG operator, Valkey, Argo Workflows, and a Gateway serving <code>/healthz</code>. Each component below gets
+<p><strong>Status:</strong> rungs 1–2 exist: the local site (kind, Cilium, Argo CD, cert-manager, CNPG, Valkey, Argo Workflows, the Gateway) and the task and state services, which pass the contract test with the real client. Each component below gets
 its own page under <em>Components</em> once it's built; until then it's listed as
 <em>planned</em>.</p>
 <h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
@@ -885,22 +1081,22 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <tr>
 <td><code>src/chronon/auth.py</code></td>
 <td>RS256 provider-token verification: signature, window, roles, projects</td>
-<td>planned</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>src/chronon/contract.py</code></td>
 <td>Pydantic models mirroring the client (datasets, task status)</td>
-<td>planned</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>src/chronon/api/app.py</code></td>
 <td>task API: <code>/task/{backend}/{workflow}</code>, <code>/task/{backend}/{id}</code>, <code>DELETE</code>, <code>/metrics</code></td>
-<td><code>/healthz</code> only</td>
+<td>exists (inline <code>echo</code>; device queue in rung 3)</td>
 </tr>
 <tr>
 <td><code>src/chronon/state/app.py</code></td>
 <td>state service: <code>/{backend}/state/</code>, <code>/{backend}/state/{id}</code>, <code>/children</code>, <code>/{backend}/timeseries/</code></td>
-<td>planned</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>src/chronon/queue.py</code></td>
@@ -908,9 +1104,14 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <td>planned</td>
 </tr>
 <tr>
-<td><code>src/chronon/db.py</code></td>
+<td><code>src/chronon/db.py</code>, <code>alembic/</code></td>
 <td>SQLAlchemy models for tasks and datasets; Alembic</td>
-<td>planned</td>
+<td>exists</td>
+</tr>
+<tr>
+<td><code>src/chronon/{backends,tasks,web,schema,seed}.py</code></td>
+<td>backend registry and summaries; task hot/durable status; JSON errors and auth dependency; payload validation; the seed job</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>src/chronon/worker/</code></td>
@@ -929,13 +1130,13 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 </tr>
 <tr>
 <td><code>tests/unit/</code></td>
-<td>unit tests</td>
-<td>exists (client patch)</td>
+<td>unit tests: client patch, auth, schema</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>tests/contract/</code></td>
 <td>the real client against a running site</td>
-<td>planned</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>vendor/iqcc-cloud-client-0.20.0/</code></td>
@@ -953,8 +1154,13 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <td>exists</td>
 </tr>
 <tr>
+<td><code>scripts/mint_tokens.py</code></td>
+<td>demo tokens via the client's TokenGenerator</td>
+<td>exists</td>
+</tr>
+<tr>
 <td><code>scripts/</code> (others)</td>
-<td>connect helper, rehearsal, token minting</td>
+<td>connect helper, rehearsal</td>
 <td>planned</td>
 </tr>
 <tr>
@@ -969,7 +1175,7 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 </tr>
 <tr>
 <td><code>platform/</code></td>
-<td>shared components: cilium, cert-manager, pki, cnpg, valkey, argo-workflows, gateway</td>
+<td>shared components: cilium, cert-manager, pki, cnpg, postgres, valkey, argo-workflows, gateway</td>
 <td>exists</td>
 </tr>
 <tr>
@@ -979,8 +1185,8 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 </tr>
 <tr>
 <td><code>services/k8s/base/</code></td>
-<td>API and state Deployments, Services, HTTPRoutes</td>
-<td>API only</td>
+<td>API and state Deployments, Services, HTTPRoutes, provider keys, seed hook</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>docs/</code></td>

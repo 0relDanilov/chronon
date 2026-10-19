@@ -522,6 +522,118 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    chronon-api
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    chronon-state
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/postgres/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Postgres
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/valkey/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valkey
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -693,6 +805,90 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0008-valkey/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0008 Valkey
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0009-postgres-cnpg-jsonb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0009 Postgres on CNPG
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0012-token-semantics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0012 Token semantics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -815,6 +1011,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#mon-19-oct-2026-rung-2-api-state-service-and-contract-test-overnight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mon 19 Oct 2026: rung 2, API, state service and contract test (overnight)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -865,6 +1072,17 @@
     <span class="md-ellipsis">
       
         Mon 19 Oct 2026: rung 1, the local site
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mon-19-oct-2026-rung-2-api-state-service-and-contract-test-overnight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mon 19 Oct 2026: rung 2, API, state service and contract test (overnight)
       
     </span>
   </a>
@@ -990,6 +1208,57 @@ https://api.chronon.test:8443/healthz</code> → <code>ALPN: server accepted h2<
 - Argo CD install and rollout: 109 s; full bootstrap re-run on an existing
   cluster: 156 s (<code>.logs/bootstrap-2.log</code>).
 - <code>docker build --target base</code>: 1 min 19 s cold (<code>time docker build …</code>).</p>
+<h2 id="mon-19-oct-2026-rung-2-api-state-service-and-contract-test-overnight">Mon 19 Oct 2026: rung 2, API, state service and contract test (overnight)<a class="headerlink" href="#mon-19-oct-2026-rung-2-api-state-service-and-contract-test-overnight" title="Permanent link">&para;</a></h2>
+<p><strong>22:45 · CNPG's default image is PostgreSQL 18.</strong> <code>pkg/versions/versions.go</code>
+at v1.30.1: <code>DefaultImageName = …postgresql:18.6-system-trixie</code>. Pinned
+<code>17.11-system-trixie</code> to keep the planned major version.</p>
+<p><strong>22:47 · Provider key from the client's own CLI, kept out of <code>~</code>.</strong>
+<code>HOME=.tokens/provider-home iqcc-cloud provider --backend-name sim-qpu</code>: the
+CLI is offline (RSA generation, <code>cli.py:86-126</code>) and writes
+<code>~/.config/iqcc_cloud/config.toml</code>. Pointing <code>HOME</code> at the gitignored
+<code>.tokens/</code> keeps the private key out of the real home directory; the PKCS#1
+public key goes to <code>services/k8s/base/provider-keys/</code>.</p>
+<p><strong>22:52 · pyright strict caught a runtime bug.</strong> <code>jsonschema.validators</code> was
+used after only <code>import jsonschema</code>, which doesn't load that submodule: an
+<code>AttributeError</code> on the first submit. Moved validation to <code>chronon.schema</code>
+with explicit imports.</p>
+<p><strong>22:55 · An unsigned token would have been a 500.</strong> The unit test for
+<code>alg: none</code> failed: PyJWT raises <code>InvalidAlgorithmError</code>, which my code
+didn't catch, so it would have reached the generic handler. Fix: also catch
+PyJWT's base <code>InvalidTokenError</code> as a 401.</p>
+<p><strong>23:00 · Argo CD couldn't build <code>services/k8s/base</code>:</strong> <code>lstat
+…/provider-keys: no such file or directory</code>. Root cause: the blanket <code>*.pem</code>
+rule in <code>.gitignore</code> (meant for private keys) also excluded the public
+provider key. Local <code>kustomize build</code> and <code>make check</code> passed, because the
+file existed on disk. Fix: a narrow negation for
+<code>services/k8s/base/provider-keys/*.pem</code>. Prevention: gates that render from a
+clean checkout (<code>git stash -u</code> or a CI job) catch "works on my disk".</p>
+<p><strong>23:04 · The seed PostSync hook didn't run on the automatic sync</strong> that
+followed the comparison-error fix; <code>argocd app sync chronon</code> ran it (Job
+Complete in 6 s). Cause not established. To check after a rebuild:
+<code>kubectl -n chronon get job chronon-seed</code>.</p>
+<p><strong>23:05 · The client's <code>trend(terminal_output=True)</code> crashed inside the
+client:</strong> <code>AttributeError: module 'plotext' has no attribute 'date_form'</code>
+(<code>state.py:205</code>). Root cause: the client requires <code>plotext&gt;=5.3.2</code> with no
+upper bound; uv resolved plotext 6.1.0, which no longer has <code>date_form</code>
+(5.3.2 defines it in <code>_core.py:331</code>). A fresh install of the client today
+hits this. Fix: <code>plotext&gt;=5.3.2,&lt;6</code> in our <code>dev</code> extra; the client is
+unchanged.</p>
+<p><strong>23:06:06 · First green contract run:</strong> <code>make contract</code> → <code>11 passed in
+1.82s</code>. The real client: constructor, <code>summary()</code> (with "Latest
+calibration"), <code>run("echo")</code> with and without <code>terminal_output</code>, a
+server-side 422, the out-of-window 401 with its window and current time, a
+non-crashing constructor on an expired token, the calibrator-only push,
+refusal of the reserved type <code>qmm_capabilities</code>, lineage (<code>push</code> →
+<code>list_children</code> → <code>get_latest</code>), <code>trend()</code> returning scalars newest first and
+plotting, JSON on every error, and polls served from Valkey.</p>
+<p><strong>Numbers</strong>
+- Contract suite: 11 tests in 1.8 s (<code>make contract</code>).
+- Unit suite: 24 tests in 5.4 s (<code>make check</code>).
+- CNPG <code>chronon-db</code>, 2 instances, ready about 2.5 min after the first sync.
+- Seed: 0.3 s (<code>kubectl -n chronon logs job/chronon-seed</code>).
+- <code>chronon_db_reads_total{path="poll"}</code> = 3 after three contract runs, all
+  from the deliberate lookup of a nonexistent task id. Polls of real tasks: 0.</p>
 
 
 
