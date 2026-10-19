@@ -26,6 +26,9 @@ arc = ["ARC-Alkali-Rydberg-Calculator==3.10.2"]
 dev = [
     # The real client, used read-only by contract tests and the rehearsal.
     "iqcc-cloud-client==0.20.0",
+    # The client needs plotext>=5.3.2 with no upper bound, but calls
+    # plt.date_form (state.py:205), which plotext 6 removed.
+    "plotext>=5.3.2,<6",
     "pytest>=8.3",
     "ruff>=0.8",
     "pyright>=1.1.390",
@@ -72,6 +75,7 @@ extraPaths = ["scripts"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests/unit"]
+# scripts/ for client_patch and mint_tokens; tests/contract for its conftest.
 pythonpath = ["scripts"]
 addopts = "-ra"
 # Third-party noise from the client's qm-qua/marshmallow import chain.

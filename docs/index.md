@@ -5,9 +5,9 @@ time-shared quantum-datacenter platform. It is not affiliated with, endorsed
 by, or connected to IQCC or Quantum Machines, and it never contacts their
 services. The "device" is a simulation.
 
-**Status:** rung 1. The local site runs (kind, Cilium, Argo CD and the
-platform components), and the API serves `/healthz` over TLS with HTTP/2.
-The task and state services don't exist yet.
+**Status:** rungs 1–2. The local site runs (kind, Cilium, Argo CD and the
+platform components), and the task and state services pass the contract test
+with the unmodified client. The simulated device (rung 3) isn't built yet.
 
 - [Architecture](architecture.md): what lives where.
 - [Client contract](contract.md): the API the unmodified client expects, with

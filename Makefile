@@ -52,7 +52,7 @@ ca: ## export the local site's CA certificate to .certs/ca.pem
 check: ## static gates
 	$(UV_RUN) ruff format --check .
 	$(UV_RUN) ruff check .
-	$(UV_RUN) pyright src scripts
+	$(UV_RUN) pyright src scripts tests
 	$(UV_RUN) pytest -q tests/unit
 	@for d in $(KUSTOMIZE_DIRS); do \
 	  if [ -f $$d/kustomization.yaml ]; then \
@@ -64,10 +64,9 @@ check: ## static gates
 	! git grep --untracked -n "i-qcc\.com" -- ':!vendor' ':!CLAUDE.md' \
 	  ':!docs/contract.md' ':!docs/security.md' ':!scripts/client_patch.py'
 
-contract: ## real client against a running site
+contract: ## real client against a running site (mints its own tokens)
 	SSL_CERT_FILE=$(SSL_CERT_FILE) CHRONON_URL=$(CHRONON_URL) \
 	CHRONON_STATE_URL=$(CHRONON_STATE_URL) \
-	CHRONON_TOKEN=$$(cat .tokens/student-01) \
 	$(UV_RUN) pytest -q tests/contract
 
 rehearsal: ## the 50-student rehearsal (MODE=fifo|fair)

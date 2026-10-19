@@ -59,5 +59,5 @@ def test_constructor_refuses_upstream_url() -> None:
         IQCC_Cloud(
             "sim-qpu",
             api_token="t",
-            url=f"https://cloud.{client_patch.FORBIDDEN_DOMAIN}",
+            url=f"https://cloud.{client_patch.FORBIDDEN_DOMAIN}",  # pyright: ignore[reportArgumentType]
         )

@@ -119,3 +119,64 @@ https://api.chronon.test:8443/healthz` → `ALPN: server accepted h2`,
 - Argo CD install and rollout: 109 s; full bootstrap re-run on an existing
   cluster: 156 s (`.logs/bootstrap-2.log`).
 - `docker build --target base`: 1 min 19 s cold (`time docker build …`).
+
+## Mon 19 Oct 2026: rung 2, API, state service and contract test (overnight)
+
+**22:45 · CNPG's default image is PostgreSQL 18.** `pkg/versions/versions.go`
+at v1.30.1: `DefaultImageName = …postgresql:18.6-system-trixie`. Pinned
+`17.11-system-trixie` to keep the planned major version.
+
+**22:47 · Provider key from the client's own CLI, kept out of `~`.**
+`HOME=.tokens/provider-home iqcc-cloud provider --backend-name sim-qpu`: the
+CLI is offline (RSA generation, `cli.py:86-126`) and writes
+`~/.config/iqcc_cloud/config.toml`. Pointing `HOME` at the gitignored
+`.tokens/` keeps the private key out of the real home directory; the PKCS#1
+public key goes to `services/k8s/base/provider-keys/`.
+
+**22:52 · pyright strict caught a runtime bug.** `jsonschema.validators` was
+used after only `import jsonschema`, which doesn't load that submodule: an
+`AttributeError` on the first submit. Moved validation to `chronon.schema`
+with explicit imports.
+
+**22:55 · An unsigned token would have been a 500.** The unit test for
+`alg: none` failed: PyJWT raises `InvalidAlgorithmError`, which my code
+didn't catch, so it would have reached the generic handler. Fix: also catch
+PyJWT's base `InvalidTokenError` as a 401.
+
+**23:00 · Argo CD couldn't build `services/k8s/base`:** `lstat
+…/provider-keys: no such file or directory`. Root cause: the blanket `*.pem`
+rule in `.gitignore` (meant for private keys) also excluded the public
+provider key. Local `kustomize build` and `make check` passed, because the
+file existed on disk. Fix: a narrow negation for
+`services/k8s/base/provider-keys/*.pem`. Prevention: gates that render from a
+clean checkout (`git stash -u` or a CI job) catch "works on my disk".
+
+**23:04 · The seed PostSync hook didn't run on the automatic sync** that
+followed the comparison-error fix; `argocd app sync chronon` ran it (Job
+Complete in 6 s). Cause not established. To check after a rebuild:
+`kubectl -n chronon get job chronon-seed`.
+
+**23:05 · The client's `trend(terminal_output=True)` crashed inside the
+client:** `AttributeError: module 'plotext' has no attribute 'date_form'`
+(`state.py:205`). Root cause: the client requires `plotext>=5.3.2` with no
+upper bound; uv resolved plotext 6.1.0, which no longer has `date_form`
+(5.3.2 defines it in `_core.py:331`). A fresh install of the client today
+hits this. Fix: `plotext>=5.3.2,<6` in our `dev` extra; the client is
+unchanged.
+
+**23:06:06 · First green contract run:** `make contract` → `11 passed in
+1.82s`. The real client: constructor, `summary()` (with "Latest
+calibration"), `run("echo")` with and without `terminal_output`, a
+server-side 422, the out-of-window 401 with its window and current time, a
+non-crashing constructor on an expired token, the calibrator-only push,
+refusal of the reserved type `qmm_capabilities`, lineage (`push` →
+`list_children` → `get_latest`), `trend()` returning scalars newest first and
+plotting, JSON on every error, and polls served from Valkey.
+
+**Numbers**
+- Contract suite: 11 tests in 1.8 s (`make contract`).
+- Unit suite: 24 tests in 5.4 s (`make check`).
+- CNPG `chronon-db`, 2 instances, ready about 2.5 min after the first sync.
+- Seed: 0.3 s (`kubectl -n chronon logs job/chronon-seed`).
+- `chronon_db_reads_total{path="poll"}` = 3 after three contract runs, all
+  from the deliberate lookup of a nonexistent task id. Polls of real tasks: 0.

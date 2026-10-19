@@ -110,7 +110,8 @@ def test_no_grant_for_backend(
 def test_alg_none_rejected(
     keys: tuple[rsa.RSAPrivateKey, dict[str, list[Any]]],
 ) -> None:
-    unsigned = jwt.encode({"user_id": "x"}, key=None, algorithm="none")
+    # Deliberately unsigned: the attack the verifier must refuse.
+    unsigned = jwt.encode({"user_id": "x"}, key=None, algorithm="none")  # pyright: ignore[reportArgumentType]
     with pytest.raises(auth.AuthError) as e:
         auth.verify(unsigned, "sim-qpu", keys[1], NOW)
     assert e.value.status == 401

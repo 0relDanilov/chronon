@@ -41,10 +41,17 @@ nav:
       - Cilium: components/cilium.md
       - Argo CD: components/argocd.md
       - cert-manager: components/cert-manager.md
+      - chronon-api: components/api.md
+      - chronon-state: components/state.md
+      - Postgres: components/postgres.md
+      - Valkey: components/valkey.md
   - Decisions (ADRs):
       - 0002 GitOps topology: adr/0002-gitops-topology.md
       - 0003 No secrets in git: adr/0003-no-secrets-in-git.md
       - 0006 Gateway host network: adr/0006-gateway-host-network.md
       - 0007 Local CA: adr/0007-local-ca.md
+      - 0008 Valkey: adr/0008-valkey.md
+      - 0009 Postgres on CNPG: adr/0009-postgres-cnpg-jsonb.md
+      - 0012 Token semantics: adr/0012-token-semantics.md
   - Built with Claude Code: built-with-claude-code.md
   - Build log: build-log.md
