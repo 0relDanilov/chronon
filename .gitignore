@@ -10,6 +10,8 @@ dist/
 .tokens/
 .certs/
 *.pem
+# ...except provider PUBLIC keys, which the services must load from git.
+!services/k8s/base/provider-keys/*.pem
 *.key
 
 # Docs build output
