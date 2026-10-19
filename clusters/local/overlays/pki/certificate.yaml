@@ -1,0 +1,25 @@
+# The one serving certificate for the local site, referenced by the Gateway's
+# HTTPS listener. Explicit, rather than created by cert-manager's Gateway shim.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: chronon-tls
+  namespace: gateway
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  secretName: chronon-tls
+  duration: 2160h # 90 days
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  usages: [server auth, digital signature, key encipherment]
+  dnsNames:
+    - api.chronon.test
+    - state.chronon.test
+    - argocd.chronon.test
+    - hubble.chronon.test
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: chronon-ca

@@ -1,0 +1,20 @@
+# App-of-apps root for the local site. Applied once by the bootstrap script;
+# from then on every change arrives through git.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/0relDanilov/chronon.git
+    targetRevision: main
+    path: clusters/local/apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

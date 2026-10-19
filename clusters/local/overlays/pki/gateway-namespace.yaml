@@ -1,0 +1,7 @@
+# Owned here because the serving Certificate must live next to the Gateway.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gateway
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"

@@ -1,0 +1,12 @@
+# Local site (kind). With kube-proxy gone, Cilium must reach the API server
+# directly: the control-plane container's name on the kind network.
+k8sServiceHost: chronon-control-plane
+k8sServicePort: 6443
+gatewayAPI:
+  # Shortcut for a site without a load balancer: Envoy listens on the node's
+  # own network, on the labelled node only (see ADR-0006).
+  hostNetwork:
+    enabled: true
+    nodes:
+      matchLabels:
+        chronon.io/gateway: "true"

@@ -1,0 +1,8 @@
+.venv
+.git
+site
+vendor
+docs
+.tokens
+.certs
+**/__pycache__

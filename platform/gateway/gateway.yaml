@@ -1,0 +1,26 @@
+# The site's single entry point. Cilium's Envoy terminates TLS here and offers
+# h2 via ALPN (gatewayAPI.enableAlpn). Backends get HTTP/1.1 in-cluster.
+# Ports are unprivileged because the listeners bind on the node's own network.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: chronon
+  namespace: gateway
+spec:
+  gatewayClassName: cilium
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 8443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: chronon-tls
+      allowedRoutes:
+        namespaces: { from: All }
+    - name: http
+      protocol: HTTP
+      port: 8080
+      allowedRoutes:
+        namespaces: { from: All }

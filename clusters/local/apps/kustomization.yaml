@@ -1,0 +1,14 @@
+# The local site's app-of-apps. Waves: -2 cert-manager; -1 CNPG operator and
+# PKI (issuers + the Certificate); 0 Valkey, Argo Workflows; 1 chronon
+# services; 2 Gateway and routes. Requires the Application health check that
+# the bootstrap adds to argocd-cm, or the waves don't wait for each other.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - cert-manager.yaml
+  - cnpg-operator.yaml
+  - pki.yaml
+  - valkey.yaml
+  - argo-workflows.yaml
+  - chronon.yaml
+  - gateway.yaml

@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-workflows
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo
+  sources:
+    - repoURL: https://argoproj.github.io/argo-helm
+      chart: argo-workflows
+      targetRevision: 2.0.13
+      helm:
+        releaseName: argo-workflows
+        valueFiles:
+          - $values/platform/argo-workflows/values.yaml
+    - repoURL: https://github.com/0relDanilov/chronon.git
+      targetRevision: main
+      ref: values
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

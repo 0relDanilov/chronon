@@ -1,0 +1,14 @@
+# Cilium 1.20.3, shared by every site. Site files override what differs.
+kubeProxyReplacement: true
+ipam:
+  mode: kubernetes
+gatewayAPI:
+  enabled: true
+  # Defaults to false. Without it the TLS listeners offer only HTTP/1.1, and
+  # the client (http1=False) can't connect.
+  enableAlpn: true
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true

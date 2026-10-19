@@ -1,0 +1,42 @@
+# The site's private CA, minted inside the cluster. Waves inside this app
+# order the chain: the self-signed issuer signs the CA certificate, whose
+# Secret then backs the "chronon-ca" issuer.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: chronon-ca
+  namespace: cert-manager # a ClusterIssuer reads its Secret from here
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  isCA: true
+  commonName: chronon local CA
+  secretName: chronon-ca
+  duration: 8760h # 1 year
+  privateKey:
+    algorithm: RSA
+    size: 2048
+  usages: [cert sign, crl sign, digital signature, key encipherment]
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: selfsigned
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: chronon-ca
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  ca:
+    secretName: chronon-ca

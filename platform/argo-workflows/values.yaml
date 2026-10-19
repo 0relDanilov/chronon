@@ -1,0 +1,5 @@
+# Argo Workflows v4.1.5 (chart 2.0.13).
+server:
+  # Shortcut for the local site: the UI has no login and is reachable only
+  # by port-forward. A real site uses SSO (authModes: [sso]).
+  authModes: [server]

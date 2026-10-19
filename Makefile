@@ -12,11 +12,16 @@ CHRONON_STATE_URL ?= https://state.chronon.test:8443
 SSL_CERT_FILE ?= $(CURDIR)/.certs/ca.pem
 
 # Every directory that may hold a kustomization; missing ones are skipped.
-KUSTOMIZE_DIRS := $(wildcard clusters/*) $(wildcard platform/*) \
-	$(wildcard backends/*/base) services/k8s/base
+KUSTOMIZE_DIRS := $(wildcard clusters/*/apps) $(wildcard clusters/*/overlays/*) \
+	$(wildcard platform/*) $(wildcard backends/*/base) services/k8s/base
+# CRD kinds (Application, Certificate, Gateway...) are validated against the
+# community CRD catalog; kinds in neither catalog are reported as skipped.
+KUBECONFORM := kubeconform -strict -ignore-missing-schemas -summary \
+	-schema-location default \
+	-schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
 
-.PHONY: help up-local down-local images-local check contract rehearsal \
-	seal docs tokens
+.PHONY: help up-local down-local images-local ca check contract \
+	rehearsal seal docs tokens
 
 help: ## list targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | \
@@ -32,6 +37,12 @@ images-local: ## build images for the host arch and kind-load them
 	docker build -f docker/Dockerfile --target base -t chronon:dev .
 	kind load docker-image --name $(CLUSTER_NAME) chronon:dev
 
+ca: ## export the local site's CA certificate to .certs/ca.pem
+	@mkdir -p .certs
+	kubectl -n cert-manager get secret chronon-ca \
+	  -o jsonpath='{.data.ca\.crt}' | base64 -d > .certs/ca.pem
+	@openssl x509 -in .certs/ca.pem -noout -subject -enddate
+
 check: ## static gates
 	$(UV_RUN) ruff format --check .
 	$(UV_RUN) ruff check .
@@ -40,8 +51,7 @@ check: ## static gates
 	@for d in $(KUSTOMIZE_DIRS); do \
 	  if [ -f $$d/kustomization.yaml ]; then \
 	    echo "kubeconform: $$d"; \
-	    $(KUSTOMIZE) build $$d | \
-	      kubeconform -strict -ignore-missing-schemas -summary; \
+	    $(KUSTOMIZE) build $$d | $(KUBECONFORM); \
 	  fi; \
 	done
 	@echo "grep: upstream domain outside the allowed files"

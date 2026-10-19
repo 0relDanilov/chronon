@@ -1,0 +1,65 @@
+# Valkey 8 (official image): the task queue and hot task status.
+# AOF on, so a restart doesn't lose queued tasks. noeviction plus a maxmemory
+# cap, so a full instance rejects writes loudly instead of silently dropping
+# queued work.
+apiVersion: v1
+kind: Service
+metadata:
+  name: valkey
+  labels: { app.kubernetes.io/name: valkey }
+spec:
+  selector: { app.kubernetes.io/name: valkey }
+  ports:
+    - { name: valkey, port: 6379, targetPort: 6379 }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: valkey
+  labels: { app.kubernetes.io/name: valkey }
+spec:
+  serviceName: valkey
+  replicas: 1
+  selector:
+    matchLabels: { app.kubernetes.io/name: valkey }
+  template:
+    metadata:
+      labels: { app.kubernetes.io/name: valkey }
+    spec:
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+        - name: valkey
+          image: valkey/valkey:8.1.10
+          imagePullPolicy: IfNotPresent
+          args:
+            - valkey-server
+            - --appendonly
+            - "yes"
+            - --appendfsync
+            - everysec
+            - --maxmemory
+            - 256mb
+            - --maxmemory-policy
+            - noeviction
+            - --dir
+            - /data
+          ports:
+            - { name: valkey, containerPort: 6379 }
+          readinessProbe:
+            exec: { command: [valkey-cli, ping] }
+            periodSeconds: 5
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { memory: 384Mi }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests: { storage: 1Gi }
