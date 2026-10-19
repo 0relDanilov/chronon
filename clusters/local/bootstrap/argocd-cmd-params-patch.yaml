@@ -1,0 +1,6 @@
+# Merged into argocd-cmd-params-cm by scripts/bootstrap/local.sh.
+# Server-Side Diff (stable since v3.1): the API server dry-runs the apply, so
+# fields it defaults (HTTPRoute matches, StatefulSet claim templates) don't
+# show up as drift. Needs a controller restart, which the bootstrap does.
+data:
+  controller.diff.server.side: "true"

@@ -54,6 +54,9 @@ kubectl apply --server-side -n argocd -f \
 # for each child app to be Healthy (removed upstream in Argo CD 1.8).
 kubectl -n argocd patch configmap argocd-cm --type merge \
   --patch-file clusters/local/bootstrap/argocd-cm-patch.yaml
+# Server-side diff, so API-server defaults don't show as permanent drift.
+kubectl -n argocd patch configmap argocd-cmd-params-cm --type merge \
+  --patch-file clusters/local/bootstrap/argocd-cmd-params-patch.yaml
 kubectl -n argocd rollout status deploy/argocd-server --timeout=5m
 kubectl -n argocd rollout status deploy/argocd-repo-server --timeout=5m
 kubectl -n argocd rollout status statefulset/argocd-application-controller \
