@@ -634,6 +634,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/sim-qpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sim-qpu device
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -692,6 +720,62 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0004-warm-worker-vs-pod-per-run/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0004 Warm worker vs pod per run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0005-fair-scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0005 Fair scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1022,6 +1106,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#mon-19-oct-2026-rung-3-the-simulated-device-overnight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mon 19 Oct 2026: rung 3, the simulated device (overnight)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1083,6 +1178,17 @@
     <span class="md-ellipsis">
       
         Mon 19 Oct 2026: rung 2, API, state service and contract test (overnight)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mon-19-oct-2026-rung-3-the-simulated-device-overnight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mon 19 Oct 2026: rung 3, the simulated device (overnight)
       
     </span>
   </a>
@@ -1259,6 +1365,47 @@ plotting, JSON on every error, and polls served from Valkey.</p>
 - Seed: 0.3 s (<code>kubectl -n chronon logs job/chronon-seed</code>).
 - <code>chronon_db_reads_total{path="poll"}</code> = 3 after three contract runs, all
   from the deliberate lookup of a nonexistent task id. Polls of real tasks: 0.</p>
+<h2 id="mon-19-oct-2026-rung-3-the-simulated-device-overnight">Mon 19 Oct 2026: rung 3, the simulated device (overnight)<a class="headerlink" href="#mon-19-oct-2026-rung-3-the-simulated-device-overnight" title="Permanent link">&para;</a></h2>
+<p><strong>23:15 · The fit's uncertainty is honest.</strong> Over 200 simulated T1 runs (true
+T1 60 µs, 25 points × 500 shots), the fitted T1 fell within ±2σ of the truth
+in 95.5% of runs, against 95.4% expected for a correct Gaussian error.
+<code>curve_fit</code> takes 4.5 ms per fit. (One-off script, seed 7; the unit test
+checks 3σ coverage ≥ 97/100.)</p>
+<p><strong>23:18 · Queue unit tests run the real Lua.</strong> <code>fakeredis[lua]</code> (lupa 2.8)
+executes the same push/pop scripts as Valkey: fairness order, cap, fifo, mode
+switch, revoke, crash requeue. 35 unit tests in 8.7 s.</p>
+<p><strong>23:21 · PodSecurity check by server-side dry run.</strong> <code>kubectl label
+--dry-run=server ns chronon pod-security.kubernetes.io/enforce=restricted</code>
+listed only <code>valkey-0</code> as violating (no seccomp, capabilities, runAsNonRoot,
+allowPrivilegeEscalation). Fixed in its manifest. The enforce label itself
+isn't applied yet.</p>
+<p><strong>23:22 · The worker publishes its own summary at startup.</strong> The summary is
+defined in code (<code>chronon.backends</code>), so a new workflow arrives with a new
+image, and git-triggered hooks don't see image-only changes. The worker runs the
+idempotent seed when it starts: <code>published sim-qpu: summary</code>, then <code>sim-qpu
+worker ready</code>.</p>
+<p><strong>23:23 · First real-client T1 on the device:</strong> <code>T1 = 59.7 ± 2.4 µs</code>; the
+client printed the result, both timings and <code>mxc temperature = 0.0118 K
+measured just now</code>, so the <code>__fridge_info</code> shape works. Wall 3.6 s (2.08 s
+device + 0.7 s reconfigure/reset + 1 s poll granularity).</p>
+<p><strong>23:23 · Three calibrations → three linked datasets</strong> (2 → 10 → 11 → 12, T1
+56.5 / 60.7 / 61.9 µs), and <code>qc.state.trend("$.qubits[0].t1",
+terminal_output=True)</code> drew the client's own terminal plot. A student calling
+<code>calibrate</code> got the 403 with its detail.</p>
+<p><strong>23:30 · The notebook runs end to end</strong> (nbclient: 4 code cells, 0 errors,
+1 figure, 68 s mostly kernel start and the client's <code>qm</code> import). Its saved
+outputs contain no tokens (<code>grep -c eyJ</code> → 0).</p>
+<p><strong>23:35 · Cap and revoke on the live cluster.</strong> Seven rapid submits by one
+student in fair mode → <code>[200, 200, 200, 200, 200, 200, 429]</code>; the device had
+already taken the first, and the cap counts queued runs only. Detail: "You
+already have 5 runs queued on sim-qpu, the per-user limit in fair mode. …".
+Revoking a queued run → <code>REVOKED</code> at once; the rest → <code>SUCCESS</code>.</p>
+<p><strong>Numbers</strong>
+- Default <code>t1</code>: 1.387 s raw device time × 1.5 time scale = 2.08 s; plus 0.7 s
+  reconfigure/reset (<code>physics.device_seconds</code>).
+- Fair order, 20 greedy queued then 5 users × 1: the last of the 5 is served at
+  pop 6; in fifo, after all 20 (<code>tests/unit/test_queue.py</code> plus a one-off
+  check).</p>
 
 
 

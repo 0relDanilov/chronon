@@ -694,6 +694,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/sim-qpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sim-qpu device
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -752,6 +780,62 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0004-warm-worker-vs-pod-per-run/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0004 Warm worker vs pod per run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0005-fair-scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0005 Fair scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1065,7 +1149,7 @@
 
 
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p><strong>Status:</strong> rungs 1–2 exist: the local site (kind, Cilium, Argo CD, cert-manager, CNPG, Valkey, Argo Workflows, the Gateway) and the task and state services, which pass the contract test with the real client. Each component below gets
+<p><strong>Status:</strong> rungs 1–3 exist: the local site (kind, Cilium, Argo CD, cert-manager, CNPG, Valkey, Argo Workflows, the Gateway) and the task and state services, which pass the contract test with the real client, and the simulated sim-qpu device with its fifo/fair queue. Each component below gets
 its own page under <em>Components</em> once it's built; until then it's listed as
 <em>planned</em>.</p>
 <h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
@@ -1101,7 +1185,7 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <tr>
 <td><code>src/chronon/queue.py</code></td>
 <td>Valkey queue, fifo and per-user fair modes</td>
-<td>planned</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>src/chronon/db.py</code>, <code>alembic/</code></td>
@@ -1116,7 +1200,7 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <tr>
 <td><code>src/chronon/worker/</code></td>
 <td>sim-qpu device loop and its synthetic physics</td>
-<td>planned</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>src/chronon/arc/</code></td>
@@ -1130,7 +1214,7 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 </tr>
 <tr>
 <td><code>tests/unit/</code></td>
-<td>unit tests: client patch, auth, schema</td>
+<td>unit tests: client patch, auth, schema, queue, physics</td>
 <td>exists</td>
 </tr>
 <tr>
@@ -1159,9 +1243,19 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <td>exists</td>
 </tr>
 <tr>
-<td><code>scripts/</code> (others)</td>
-<td>connect helper, rehearsal</td>
+<td><code>scripts/connect.py</code></td>
+<td><code>connect(backend)</code>: the patched client in one call</td>
+<td>exists</td>
+</tr>
+<tr>
+<td><code>scripts/rehearsal/</code></td>
+<td>the workshop rehearsal and overhead measurement</td>
 <td>planned</td>
+</tr>
+<tr>
+<td><code>notebooks/demo.ipynb</code></td>
+<td>the demo: connect, summary, t1 with fit, calibrations and trend</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>docker/Dockerfile</code></td>
@@ -1179,8 +1273,13 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <td>exists</td>
 </tr>
 <tr>
-<td><code>backends/sim-qpu/</code>, <code>backends/arc/</code></td>
-<td>per-backend manifests</td>
+<td><code>backends/sim-qpu/</code></td>
+<td>the device worker (replicas 1, Recreate)</td>
+<td>exists</td>
+</tr>
+<tr>
+<td><code>backends/arc/</code></td>
+<td>the Stark-map backend</td>
 <td>planned</td>
 </tr>
 <tr>

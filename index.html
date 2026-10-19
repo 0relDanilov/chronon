@@ -644,6 +644,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="components/sim-qpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    sim-qpu device
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -702,6 +730,62 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0004-warm-worker-vs-pod-per-run/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0004 Warm worker vs pod per run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="adr/0005-fair-scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0005 Fair scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1000,9 +1084,10 @@
 time-shared quantum-datacenter platform. It is not affiliated with, endorsed
 by, or connected to IQCC or Quantum Machines, and it never contacts their
 services. The "device" is a simulation.</p>
-<p><strong>Status:</strong> rungs 1–2. The local site runs (kind, Cilium, Argo CD and the
+<p><strong>Status:</strong> rungs 1–3. The local site runs (kind, Cilium, Argo CD and the
 platform components), and the task and state services pass the contract test
-with the unmodified client. The simulated device (rung 3) isn't built yet.</p>
+with the unmodified client. The simulated device <code>sim-qpu</code> runs <code>t1</code> and <code>calibrate</code> with fifo or fair
+scheduling; <code>notebooks/demo.ipynb</code> drives it with the real client.</p>
 <ul>
 <li><a href="architecture/">Architecture</a>: what lives where.</li>
 <li><a href="contract/">Client contract</a>: the API the unmodified client expects, with
