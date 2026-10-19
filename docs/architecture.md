@@ -25,12 +25,12 @@ its own page under *Components* once it's built; until then it's listed as
 | `scripts/bootstrap/local.sh` | the substrate: kind, Gateway API CRDs, Cilium, images, Argo CD, root app | exists |
 | `scripts/mint_tokens.py` | demo tokens via the client's TokenGenerator | exists |
 | `scripts/connect.py` | `connect(backend)`: the patched client in one call | exists |
-| `scripts/rehearsal/` | the workshop rehearsal and overhead measurement | planned |
+| `scripts/rehearsal/` | the workshop rehearsal and overhead measurement | exists (smoke-tested with 5 users) |
 | `notebooks/demo.ipynb` | the demo: connect, summary, t1 with fit, calibrations and trend | exists |
 | `docker/Dockerfile` | images: `base` (exists) and `arc` (planned) targets | partly |
 | `clusters/local/` | the local site: kind bootstrap, Argo CD apps, values, overlays | exists |
 | `platform/` | shared components: cilium, cert-manager, pki, cnpg, postgres, valkey, argo-workflows, gateway | exists |
-| `backends/sim-qpu/` | the device worker (replicas 1, Recreate) | exists |
+| `backends/sim-qpu/` | the device worker (replicas 1, Recreate) and the `t1-pod-per-run` WorkflowTemplate | exists |
 | `backends/arc/` | the Stark-map backend | planned |
 | `services/k8s/base/` | API and state Deployments, Services, HTTPRoutes, provider keys, seed hook | exists |
 | `docs/` | this site (MkDocs Material) | exists |

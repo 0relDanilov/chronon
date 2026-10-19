@@ -34,4 +34,5 @@ cost is amortized over minutes (the Stark-map backend).
 | What | Value | Command |
 |---|---|---|
 | Warm worker, one default `t1` run, submit to SUCCESS seen by the client | 3.6 s wall (2.08 s device + 0.7 s reconfigure and reset + 1 s poll granularity) | `qc.run("t1", {"qubit": 0})` at 23:23 |
-| Pod per run vs warm worker: mean and p95, submit→start and total, 10 runs each | *to be measured Tuesday* | `uv run --extra dev python scripts/rehearsal/overhead.py` |
+| Smoke (2 runs each, not a measurement): submit→start · submit→done | warm 0.24 s · 2.85 s; pod per run 11.46 s · 17.34 s (clock skew +70 ms) | `overhead.py --runs 2`, Mon 23:47 |
+| Pod per run vs warm worker: mean and p95, 10 runs each | *to be measured Tuesday* | `uv run --extra dev python scripts/rehearsal/overhead.py --runs 10` |

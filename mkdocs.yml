@@ -46,6 +46,7 @@ nav:
       - Postgres: components/postgres.md
       - Valkey: components/valkey.md
       - sim-qpu device: components/sim-qpu.md
+      - Rehearsal and overhead: components/rehearsal.md
   - Decisions (ADRs):
       - 0004 Warm worker vs pod per run: adr/0004-warm-worker-vs-pod-per-run.md
       - 0005 Fair scheduling: adr/0005-fair-scheduling.md

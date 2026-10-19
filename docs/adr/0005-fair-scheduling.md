@@ -42,4 +42,5 @@ keys of a backend would need one hash tag, `{sim-qpu}`, to stay on one shard.
 | What | Value | Command |
 |---|---|---|
 | Order, 20 greedy queued then 5 users × 1 (unit test, real Lua) | fair: all 5 within the first 6 pops; fifo: after all 20 | `pytest tests/unit/test_queue.py` |
-| Rehearsal, p50/p95 wait, greedy share (FIFO vs fair, 50 users) | *Tuesday* | `make rehearsal MODE=fifo` / `MODE=fair` |
+| Smoke rehearsal, 5 students + greedy (20 runs): student wait p50/p95; greedy share until last student | fifo 60.1/63.6 s, 79.7%; fair 9.5/15.4 s, 32.8% | `make rehearsal MODE=fifo USERS=5` / `MODE=fair`, Mon 23:42 |
+| Rehearsal, 50 students | *Tuesday* | `make rehearsal MODE=fifo` / `MODE=fair` |

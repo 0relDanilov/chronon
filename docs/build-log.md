@@ -231,3 +231,21 @@ Revoking a queued run → `REVOKED` at once; the rest → `SUCCESS`.
 - Fair order, 20 greedy queued then 5 users × 1: the last of the 5 is served at
   pop 6; in fifo, after all 20 (`tests/unit/test_queue.py` plus a one-off
   check).
+
+## Mon 19 Oct 2026: R5 scripts, smoke-tested (overnight)
+
+**23:40 · argo CLI v4.1.5** installed from the release binary (checksum
+verified), to match the server.
+
+**23:42 · Rehearsal smoke runs, 5 students + greedy (20 runs).**
+`make rehearsal MODE=fair USERS=5`: student wait p50/p95 9.5/15.4 s, last
+student done 20.7 s after the cohort arrived, greedy share until then 32.8%,
+52 greedy submissions refused with 429, 424 polls with 0 DB reads,
+utilization 99.5%, student-01 on the real client OK. `MODE=fifo`: wait p50/p95
+60.1/63.6 s, last student 68.4 s, greedy share 79.7%, 893 polls with 0 DB
+reads. 77 s and 76 s wall. The 50-student runs are for Tuesday morning.
+
+**23:47 · Overhead smoke run, 2 runs each** (`overhead.py --runs 2`):
+submit→start warm 0.24 s vs pod 11.46 s; submit→done 2.85 s vs 17.34 s;
+`argo submit`→`argo wait` 25.6 s. Laptop↔Docker VM skew +70 ms. Two runs
+aren't a measurement; the 10-run result is for Tuesday.
