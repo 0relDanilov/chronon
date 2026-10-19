@@ -438,6 +438,261 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/cilium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cilium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/argocd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Argo CD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/cert-manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cert-manager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions (ADRs)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0002-gitops-topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0002 GitOps topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0003-no-secrets-in-git/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0003 No secrets in git
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0006-gateway-host-network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0006 Gateway host network
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0007-local-ca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0007 Local CA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -549,6 +804,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#mon-19-oct-2026-rung-1-the-local-site" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mon 19 Oct 2026: rung 1, the local site
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -588,6 +854,17 @@
     <span class="md-ellipsis">
       
         Mon 19 Oct 2026: scaffold
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mon-19-oct-2026-rung-1-the-local-site" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mon 19 Oct 2026: rung 1, the local site
       
     </span>
   </a>
@@ -662,6 +939,57 @@ import the patch themselves) plus an OS-level hosts sinkhole. A second
 finding from the same discussion: any <code>calibrator</code> could push a
 <code>qmm_capabilities</code> dataset, which the client unpickles. The state service
 will refuse writes of reserved types (<code>docs/contract.md</code>).</p>
+<h2 id="mon-19-oct-2026-rung-1-the-local-site">Mon 19 Oct 2026: rung 1, the local site<a class="headerlink" href="#mon-19-oct-2026-rung-1-the-local-site" title="Permanent link">&para;</a></h2>
+<p><strong>20:15 · argocd CLI skew.</strong> Homebrew's <code>argocd</code> was 2.14.5, and the server is
+v3.5.5. Installed the v3.5.5 binary (checksum verified) and ran <code>brew unlink
+argocd</code> (reversible with <code>brew link argocd</code>), because <code>/usr/local/bin</code> comes
+before <code>~/.local/bin</code> on PATH.</p>
+<p><strong>20:18 · Two upstream facts checked before writing manifests.</strong>
+<code>helm show values cilium/cilium --version 1.20.3</code>: <code>enableAlpn: false</code> by
+default, and <code>gatewayClass.create: auto</code> creates the GatewayClass only if the
+Gateway API CRDs already exist, so the CRDs go first. Argo CD v3.5.5 docs
+(<code>operator-manual/health.md</code>): Application health was removed in 1.8 and must
+be restored for app-of-apps sync waves. The bootstrap patches <code>argocd-cm</code>.</p>
+<p><strong>20:28 · CI rejected the workflow file.</strong> Root cause: <code>hashFiles()</code> isn't
+allowed in a job-level <code>if:</code> (only status functions are), so GitHub failed the
+whole file before any job ran. Fix: drop the condition; the Dockerfile exists.</p>
+<p><strong>20:29 · Committed an editor swap file</strong> (<code>src/chronon/api/.app.py.swp</code>,
+from vim). Untracked it, kept it on disk, and now ignore <code>*.swp</code>. Prevention:
+look at <code>git status</code> before <code>git add -A</code>.</p>
+<p><strong>20:30 · <code>kind load</code> failed for <code>valkey/valkey:8.1.10</code>:</strong> <code>ctr: content
+digest sha256:d2a1…: not found</code>. Root cause: Docker Desktop uses the
+containerd image store (<code>docker info</code>: <code>io.containerd.snapshotter.v1</code>), which
+keeps a multi-platform image's index but only the amd64 layers. kind exports
+the index, and <code>ctr import --all-platforms</code> on the node looks for the missing
+platforms. Images we build (<code>chronon:dev</code>) are single-platform and load fine.
+Fix: the nodes pull the one Docker Hub image themselves (one image, one
+replica, far under the anonymous rate limit). Rejected: retagging a locally
+rebuilt single-platform copy under the upstream tag.</p>
+<p><strong>20:36 · <code>valkey</code> and <code>chronon</code> OutOfSync right after "successfully synced".</strong>
+Root cause: fields the API server defaults (StatefulSet claim-template fields,
+the HTTPRoute's default <code>PathPrefix /</code> match) aren't in git. Argo's diff for
+SSA apps (structured-merge) reports them as drift. Fix: Server-Side Diff
+(<code>controller.diff.server.side: "true"</code>, stable since v3.1), plus a controller
+restart.</p>
+<p><strong>20:45 · Sync-wave deadlock.</strong> <code>chronon</code> (wave 1) stayed Progressing, so
+the <code>gateway</code> app (wave 2) was never created. Root cause: an HTTPRoute is
+Progressing until a Gateway accepts it, and its Gateway was in a later wave.
+Fix: Gateway to wave 0 (it only needs the wave −1 certificate); routes stay
+with their services. The in-flight root sync was pinned to the old revision,
+so it needed <code>argocd app terminate-op root</code>. Side lesson: since Argo CD 3.0,
+per-resource health isn't stored in <code>.status.resources</code>; use <code>argocd app get</code>.</p>
+<p><strong>20:51 · Rung 1 DoD passes.</strong> <code>curl --http2 -v --cacert .certs/ca.pem
+https://api.chronon.test:8443/healthz</code> → <code>ALPN: server accepted h2</code>,
+<code>SSL certificate verify ok</code>, <code>HTTP/2 200</code>. The client's transport
+(<code>httpx.Client(http2=True, http1=False)</code>) also gets <code>HTTP/2 200</code>.
+<code>argocd app list</code>: 8/8 Synced/Healthy. <code>cilium status</code>: OK. Hubble UI: HTTP
+200 over a port-forward.</p>
+<p><strong>Numbers</strong>
+- kind create (3 nodes, v1.37.0): 91 s; Cilium to <code>status OK</code>: 200 s
+  (bootstrap stage stamps, <code>.logs/bootstrap-1.log</code>).
+- Argo CD install and rollout: 109 s; full bootstrap re-run on an existing
+  cluster: 156 s (<code>.logs/bootstrap-2.log</code>).
+- <code>docker build --target base</code>: 1 min 19 s cold (<code>time docker build …</code>).</p>
 
 
 

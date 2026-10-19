@@ -498,6 +498,261 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/cilium/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cilium
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/argocd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Argo CD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../components/cert-manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cert-manager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions (ADRs)
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0002-gitops-topology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0002 GitOps topology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0003-no-secrets-in-git/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0003 No secrets in git
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0006-gateway-host-network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0006 Gateway host network
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../adr/0007-local-ca/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0007 Local CA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -614,7 +869,7 @@
 
 
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p><strong>Status:</strong> only the repository scaffold exists. Each component below gets
+<p><strong>Status:</strong> the local site (rung 1) exists: kind, Cilium, Argo CD, cert-manager, the CNPG operator, Valkey, Argo Workflows, and a Gateway serving <code>/healthz</code>. Each component below gets
 its own page under <em>Components</em> once it's built; until then it's listed as
 <em>planned</em>.</p>
 <h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
@@ -640,7 +895,7 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <tr>
 <td><code>src/chronon/api/app.py</code></td>
 <td>task API: <code>/task/{backend}/{workflow}</code>, <code>/task/{backend}/{id}</code>, <code>DELETE</code>, <code>/metrics</code></td>
-<td>planned</td>
+<td><code>/healthz</code> only</td>
 </tr>
 <tr>
 <td><code>src/chronon/state/app.py</code></td>
@@ -693,24 +948,29 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <td>exists</td>
 </tr>
 <tr>
+<td><code>scripts/bootstrap/local.sh</code></td>
+<td>the substrate: kind, Gateway API CRDs, Cilium, images, Argo CD, root app</td>
+<td>exists</td>
+</tr>
+<tr>
 <td><code>scripts/</code> (others)</td>
-<td>connect helper, rehearsal, token minting, bootstrap</td>
+<td>connect helper, rehearsal, token minting</td>
 <td>planned</td>
 </tr>
 <tr>
 <td><code>docker/Dockerfile</code></td>
-<td>images: <code>base</code> and <code>arc</code> targets</td>
-<td>planned</td>
+<td>images: <code>base</code> (exists) and <code>arc</code> (planned) targets</td>
+<td>partly</td>
 </tr>
 <tr>
 <td><code>clusters/local/</code></td>
-<td>the local site: kind bootstrap, Argo CD apps, values</td>
-<td>planned</td>
+<td>the local site: kind bootstrap, Argo CD apps, values, overlays</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>platform/</code></td>
-<td>shared components: cilium, cert-manager, cnpg, valkey, argo-workflows, gateway</td>
-<td>planned</td>
+<td>shared components: cilium, cert-manager, pki, cnpg, valkey, argo-workflows, gateway</td>
+<td>exists</td>
 </tr>
 <tr>
 <td><code>backends/sim-qpu/</code>, <code>backends/arc/</code></td>
@@ -720,7 +980,7 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <tr>
 <td><code>services/k8s/base/</code></td>
 <td>API and state Deployments, Services, HTTPRoutes</td>
-<td>planned</td>
+<td>API only</td>
 </tr>
 <tr>
 <td><code>docs/</code></td>
