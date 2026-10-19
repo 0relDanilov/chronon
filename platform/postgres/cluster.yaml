@@ -1,0 +1,20 @@
+# chronon's database: CloudNativePG, 2 instances (primary + streaming
+# replica), PostgreSQL 17 pinned (the operator's default is 18). CNPG
+# generates the app credentials into Secret chronon-db-app (key `uri`),
+# so nothing secret is in git.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: chronon-db
+spec:
+  instances: 2
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.11-system-trixie
+  storage:
+    size: 1Gi
+  bootstrap:
+    initdb:
+      database: chronon
+      owner: chronon
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { memory: 512Mi }

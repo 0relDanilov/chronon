@@ -16,6 +16,8 @@ dependencies = [
     "psycopg[binary]>=3.2",
     "jsonschema>=4.23",
     "numpy>=2.0",
+    "scipy>=1.14",
+    "prometheus-client>=0.21",
 ]
 
 [project.optional-dependencies]
@@ -30,6 +32,11 @@ dev = [
     # MkDocs 2.x is not compatible with Material's plugins; stay on 1.x.
     "mkdocs>=1.6,<2",
     "mkdocs-material>=9.5,<10",
+    # Rehearsal charts and the demo notebook.
+    "matplotlib>=3.9",
+    "ipykernel>=6.29",
+    "nbclient>=0.10",
+    "nbformat>=5.10",
 ]
 
 [build-system]

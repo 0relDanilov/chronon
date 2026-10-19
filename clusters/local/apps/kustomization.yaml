@@ -1,5 +1,5 @@
 # The local site's app-of-apps. Waves: -2 cert-manager; -1 CNPG operator and
-# PKI (issuers + the Certificate); 0 Valkey, Argo Workflows, Gateway;
+# PKI (issuers + the Certificate); 0 Postgres, Valkey, Argo Workflows, Gateway;
 # 1 chronon services with their own HTTPRoutes; 2 backends.
 # The Gateway must come before the routes: a route stays Progressing until a
 # Gateway accepts it, so routes in an earlier wave deadlock the sync.
@@ -11,6 +11,7 @@ resources:
   - cert-manager.yaml
   - cnpg-operator.yaml
   - pki.yaml
+  - postgres.yaml
   - valkey.yaml
   - argo-workflows.yaml
   - chronon.yaml

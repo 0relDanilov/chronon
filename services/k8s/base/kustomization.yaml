@@ -2,3 +2,12 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - api.yaml
+  - state.yaml
+  - seed-job.yaml
+# Provider public keys (PKCS#1, as `iqcc-cloud provider` prints them), one file
+# per key: <backend>.<key-name>.pem. Public, so they belong in git. The name
+# hash makes pods roll when a key is added.
+configMapGenerator:
+  - name: provider-keys
+    files:
+      - provider-keys/sim-qpu.workshop.pem

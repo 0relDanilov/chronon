@@ -20,8 +20,8 @@ KUBECONFORM := kubeconform -strict -ignore-missing-schemas -summary \
 	-schema-location default \
 	-schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
 
-.PHONY: help up-local down-local images-local ca check contract \
-	rehearsal seal docs tokens
+.PHONY: help up-local down-local images-local reload-local ca check \
+	contract rehearsal seal docs tokens
 
 help: ## list targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | \
@@ -36,6 +36,12 @@ down-local: ## delete the local kind cluster
 images-local: ## build images for the host arch and kind-load them
 	docker build -f docker/Dockerfile --target base -t chronon:dev .
 	kind load docker-image --name $(CLUSTER_NAME) chronon:dev
+
+reload-local: images-local ## rebuild, kind-load, and restart chronon pods
+	# Same :dev tag, so nothing in git changes: restart to pick up the image.
+	kubectl -n chronon rollout restart deploy -l app.kubernetes.io/part-of=chronon
+	kubectl -n chronon rollout status deploy -l app.kubernetes.io/part-of=chronon \
+	  --timeout=5m
 
 ca: ## export the local site's CA certificate to .certs/ca.pem
 	@mkdir -p .certs
