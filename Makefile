@@ -6,6 +6,7 @@ UV_RUN := uv run --extra dev
 KUSTOMIZE ?= kustomize
 CLUSTER_NAME ?= chronon
 MODE ?= fair
+USERS ?= 50
 
 CHRONON_URL ?= https://api.chronon.test:8443
 CHRONON_STATE_URL ?= https://state.chronon.test:8443
@@ -69,10 +70,9 @@ contract: ## real client against a running site (mints its own tokens)
 	CHRONON_STATE_URL=$(CHRONON_STATE_URL) \
 	$(UV_RUN) pytest -q tests/contract
 
-rehearsal: ## the 50-student rehearsal (MODE=fifo|fair)
+rehearsal: ## the workshop rehearsal (MODE=fifo|fair USERS=50)
 	SSL_CERT_FILE=$(SSL_CERT_FILE) CHRONON_URL=$(CHRONON_URL) \
-	CHRONON_STATE_URL=$(CHRONON_STATE_URL) \
-	$(UV_RUN) python scripts/rehearsal/run.py --mode $(MODE)
+	$(UV_RUN) python scripts/rehearsal/run.py --mode $(MODE) --users $(USERS)
 
 seal: ## not this round: no secrets in git yet
 	@echo "No secrets are needed in git yet; Sealed Secrets is future work."

@@ -1,0 +1,64 @@
+# The comparison case for ADR-0004: the same T1 run, but one fresh pod per
+# run, through Argo Workflows. Used only by scripts/rehearsal/overhead.py.
+# The mutex makes runs exclusive on the device, as the warm worker is.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: t1-pod-per-run
+---
+# The minimum the Argo executor needs (Argo Workflows docs, workflow-rbac.md).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argo-executor
+rules:
+  - apiGroups: [argoproj.io]
+    resources: [workflowtaskresults]
+    verbs: [create, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: t1-pod-per-run-executor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argo-executor
+subjects:
+  - kind: ServiceAccount
+    name: t1-pod-per-run
+---
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: t1-pod-per-run
+spec:
+  entrypoint: t1
+  serviceAccountName: t1-pod-per-run
+  # Argo Workflows 4.x: the list form (`mutexes`); singular `mutex` was removed.
+  synchronization:
+    mutexes:
+      - name: sim-qpu-device
+  podGC:
+    strategy: OnWorkflowSuccess
+    deleteDelayDuration: 120s # long enough for overhead.py to read the log
+  templates:
+    - name: t1
+      metadata:
+        labels: { chronon.io/role: device-worker }
+      container:
+        image: chronon:dev
+        imagePullPolicy: IfNotPresent
+        command: [python, -m, chronon.worker.oneshot]
+        env:
+          - name: CHRONON_SIM_TIME_SCALE
+            value: "1.5"
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 10001
+          allowPrivilegeEscalation: false
+          capabilities: { drop: [ALL] }
+          seccompProfile: { type: RuntimeDefault }
+        resources:
+          requests: { cpu: 200m, memory: 192Mi }
+          limits: { memory: 512Mi }
