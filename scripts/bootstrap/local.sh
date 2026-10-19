@@ -11,9 +11,6 @@ CLUSTER=chronon
 GATEWAY_API_VERSION=v1.6.3
 CILIUM_VERSION=1.20.3
 ARGOCD_VERSION=v3.5.5
-# Docker Hub images are pulled once on the laptop and loaded into kind,
-# because Docker Hub rate-limits anonymous pulls from the nodes.
-HUB_IMAGES=(valkey/valkey:8.1.10)
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
@@ -44,11 +41,10 @@ cilium status --wait --wait-duration 10m
 kubectl wait --for=condition=Ready nodes --all --timeout=5m
 
 stage "4/6 local images"
+# Only images we build are kind-loaded. Upstream images (one Docker Hub image:
+# valkey) are pulled by the nodes: `kind load` of a multi-platform image fails
+# under Docker Desktop's containerd image store (see the build log).
 make images-local
-for img in "${HUB_IMAGES[@]}"; do
-  docker image inspect "$img" >/dev/null 2>&1 || docker pull "$img"
-  kind load docker-image --name "$CLUSTER" "$img"
-done
 
 stage "5/6 Argo CD $ARGOCD_VERSION"
 kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
