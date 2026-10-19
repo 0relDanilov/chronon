@@ -1,0 +1,20 @@
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+dist/
+
+# Local secrets and generated material: never committed
+.tokens/
+.certs/
+*.pem
+*.key
+
+# Docs build output
+site/
+
+# Notebooks' checkpoint folders
+.ipynb_checkpoints/
+.DS_Store

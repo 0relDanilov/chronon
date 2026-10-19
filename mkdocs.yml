@@ -1,0 +1,42 @@
+site_name: chronon
+site_description: >-
+  A staging slice of a time-shared quantum-datacenter platform
+  (independent learning project).
+repo_url: https://github.com/0relDanilov/chronon
+edit_uri: ""
+strict: true
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+  palette:
+    - scheme: default
+      toggle: { icon: material/brightness-7, name: Dark mode }
+    - scheme: slate
+      toggle: { icon: material/brightness-4, name: Light mode }
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc: { permalink: true }
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+# Pages are added here only once they exist (strict builds fail on missing
+# pages, and the docs describe only what is built). Planned sections:
+# life-of-a-run, abstractions, security, adr/, runbooks/,
+# onboarding-a-backend, bringing-up-a-site, physics-notes, open-questions.
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Client contract: contract.md
+  - Components:
+      - Repository layout: components/repo-layout.md
+      - Client patch: components/client-patch.md
+  - Built with Claude Code: built-with-claude-code.md
+  - Build log: build-log.md

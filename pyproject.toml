@@ -1,0 +1,71 @@
+[project]
+name = "chronon"
+version = "0.1.0"
+description = "A staging slice of a time-shared quantum-datacenter platform (independent learning project)."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "httpx>=0.28",
+    "pydantic>=2.9",
+    "pyjwt[crypto]>=2.10",
+    "redis>=5.2",
+    "sqlalchemy>=2.0",
+    "alembic>=1.14",
+    "psycopg[binary]>=3.2",
+    "jsonschema>=4.23",
+    "numpy>=2.0",
+]
+
+[project.optional-dependencies]
+# Stark-map backend; only installed in the arc image (Linux amd64 wheels).
+arc = ["ARC-Alkali-Rydberg-Calculator==3.10.2"]
+dev = [
+    # The real client, used read-only by contract tests and the rehearsal.
+    "iqcc-cloud-client==0.20.0",
+    "pytest>=8.3",
+    "ruff>=0.8",
+    "pyright>=1.1.390",
+    # MkDocs 2.x is not compatible with Material's plugins; stay on 1.x.
+    "mkdocs>=1.6,<2",
+    "mkdocs-material>=9.5,<10",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/chronon"]
+
+[tool.ruff]
+line-length = 80
+target-version = "py312"
+extend-exclude = ["vendor"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "D"]
+ignore = ["D105", "D107"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.pyright]
+pythonVersion = "3.12"
+venvPath = "."
+venv = ".venv"
+include = ["src", "scripts", "tests"]
+exclude = ["vendor", ".venv"]
+strict = ["src/chronon"]
+extraPaths = ["scripts"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit"]
+pythonpath = ["scripts"]
+addopts = "-ra"
+# Third-party noise from the client's qm-qua/marshmallow import chain.
+filterwarnings = ["ignore:Passing field metadata as keyword arguments"]
