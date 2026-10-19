@@ -1,0 +1,75 @@
+# The sim-qpu device worker: ONE long-lived pod owns the simulated device.
+# replicas: 1 plus strategy Recreate, so an update stops the old worker before
+# the new one starts: never two holders of the device. Everything it
+# measures is synthetic.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sim-qpu-worker
+automountServiceAccountToken: false # it never calls the Kubernetes API
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-qpu-worker
+  labels:
+    app.kubernetes.io/name: sim-qpu-worker
+    app.kubernetes.io/part-of: chronon
+    chronon.io/role: device-worker
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: { app.kubernetes.io/name: sim-qpu-worker }
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sim-qpu-worker
+        app.kubernetes.io/part-of: chronon
+        chronon.io/role: device-worker
+    spec:
+      serviceAccountName: sim-qpu-worker
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: worker
+          image: chronon:dev
+          imagePullPolicy: IfNotPresent
+          command: [python, -m, chronon.worker.simqpu]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef: { name: chronon-db-app, key: uri }
+            - name: VALKEY_URL
+              value: redis://valkey:6379/0
+            - name: CHRONON_SIM_TIME_SCALE
+              value: "1.5" # a default t1 run ≈ 2.1 s of device time
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          # The loop touches /tmp/heartbeat every iteration; a run lasts a few
+          # seconds, so 60 s without a touch means the loop is stuck.
+          livenessProbe:
+            exec:
+              command:
+                - python
+                - -c
+                - "import os,sys,time; sys.exit(time.time()-os.path.getmtime('/tmp/heartbeat')>60)"
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: [ALL] }
+          resources:
+            requests: { cpu: 200m, memory: 192Mi }
+            limits: { memory: 512Mi }
+          volumeMounts:
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: tmp
+          emptyDir: {}

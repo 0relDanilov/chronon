@@ -1,6 +1,6 @@
 # The local site's app-of-apps. Waves: -2 cert-manager; -1 CNPG operator and
 # PKI (issuers + the Certificate); 0 Postgres, Valkey, Argo Workflows, Gateway;
-# 1 chronon services with their own HTTPRoutes; 2 backends.
+# 1 chronon services with their own HTTPRoutes; 2 backends (sim-qpu worker).
 # The Gateway must come before the routes: a route stays Progressing until a
 # Gateway accepts it, so routes in an earlier wave deadlock the sync.
 # Requires the Application health check that the bootstrap adds to argocd-cm,
@@ -16,3 +16,4 @@ resources:
   - argo-workflows.yaml
   - chronon.yaml
   - gateway.yaml
+  - sim-qpu.yaml

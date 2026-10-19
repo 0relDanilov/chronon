@@ -4,12 +4,13 @@ Polls read only Valkey (``HGETALL task:{id}``). Postgres is written on every
 state change and read only when the hot copy is missing (expired or lost).
 """
 
+import json
 from datetime import UTC, datetime
 from functools import cache
 from typing import Any, cast
 
 import redis
-from sqlalchemy import update
+from sqlalchemy import delete, update
 from sqlalchemy.orm import Session
 
 from chronon.contract import TaskStatus
@@ -45,7 +46,7 @@ def _now() -> datetime:
     return datetime.now(UTC)
 
 
-def create(
+def new_task(
     task_id: str,
     backend: str,
     workflow: str,
@@ -53,8 +54,11 @@ def create(
     payload: Any,
     status: TaskStatus = TaskStatus.PENDING,
     result: str = "{}",
-) -> None:
-    """Record a new task in Postgres, then in Valkey.
+) -> dict[str, str]:
+    """Write a task's durable row and return its hot-hash fields.
+
+    The caller writes the fields to Valkey: directly (``create``), or inside
+    the queue's atomic push (``chronon.queue.submit``).
 
     Args:
         task_id: A new UUID.
@@ -64,6 +68,9 @@ def create(
         payload: The validated payload.
         status: Initial status.
         result: Initial ``task_result`` JSON string.
+
+    Returns:
+        Field/value pairs for ``task:{id}``.
     """
     now = _now()
     finished = (
@@ -84,21 +91,57 @@ def create(
                 finished_at=finished,
             )
         )
-    fields: dict[Any, Any] = {
+    fields = {
         "status": status.value,
         "result": result,
         "user": user_id,
         "backend": backend,
         "workflow": workflow,
+        "payload": json.dumps(payload),
         "submitted_at": f"{now.timestamp():.6f}",
     }
     if finished is not None:
         fields["started_at"] = fields["finished_at"] = fields["submitted_at"]
-    v = get_valkey()
-    pipe = v.pipeline()  # pyright: ignore[reportUnknownMemberType]
+    return fields
+
+
+def create(
+    task_id: str,
+    backend: str,
+    workflow: str,
+    user_id: str,
+    payload: Any,
+    status: TaskStatus = TaskStatus.PENDING,
+    result: str = "{}",
+) -> None:
+    """Record a task that isn't queued (inline workflows) in both stores.
+
+    Args:
+        task_id: A new UUID.
+        backend: Backend name.
+        workflow: Workflow name.
+        user_id: The submitting user.
+        payload: The validated payload.
+        status: Initial status.
+        result: Initial ``task_result`` JSON string.
+    """
+    fields: dict[Any, Any] = new_task(
+        task_id, backend, workflow, user_id, payload, status, result
+    )
+    pipe = get_valkey().pipeline()  # pyright: ignore[reportUnknownMemberType]
     pipe.hset(task_key(task_id), mapping=fields)
     pipe.expire(task_key(task_id), get_settings().task_ttl_seconds)
     pipe.execute()
+
+
+def delete_durable(task_id: str) -> None:
+    """Remove a task's row (used when the queue refuses it).
+
+    Args:
+        task_id: The task.
+    """
+    with Session(get_engine()) as s, s.begin():
+        s.execute(delete(TaskRow).where(TaskRow.id == task_id))
 
 
 def hot(task_id: str) -> dict[str, str]:

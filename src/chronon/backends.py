@@ -77,6 +77,63 @@ ECHO = Workflow(
     executor="inline",
 )
 
+_T1_PROPERTIES: dict[str, Any] = {
+    "max_wait_us": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 1000,
+        "default": 200,
+        "description": "Longest wait between excitation and readout (µs).",
+    },
+    "points": {
+        "type": "integer",
+        "minimum": 5,
+        "maximum": 60,
+        "default": 25,
+        "description": "Number of wait times, evenly spaced from 0.",
+    },
+    "shots": {
+        "type": "integer",
+        "minimum": 50,
+        "maximum": 5000,
+        "default": 500,
+        "description": "Repetitions per wait time.",
+    },
+}
+
+T1 = Workflow(
+    name="t1",
+    description=(
+        "T1 (energy relaxation) measurement on the simulated qubit: excite, "
+        "wait, read out, fit an exponential decay. Synthetic data."
+    ),
+    schema={
+        "type": "object",
+        "properties": {
+            "qubit": {"type": "integer", "minimum": 0, "maximum": 0},
+            **_T1_PROPERTIES,
+        },
+        "required": ["qubit"],
+        "additionalProperties": False,
+    },
+    executor="device",
+)
+
+CALIBRATE = Workflow(
+    name="calibrate",
+    description=(
+        "Measure T1 and publish a new 'state' dataset linked to the previous "
+        "one. Requires the calibrator role. Synthetic data."
+    ),
+    schema={
+        "type": "object",
+        "properties": _T1_PROPERTIES,
+        "additionalProperties": False,
+    },
+    executor="device",
+    role="calibrator",
+)
+
 SIM_QPU = Backend(
     name="sim-qpu",
     description=(
@@ -87,7 +144,7 @@ SIM_QPU = Backend(
         "state": "Latest calibration of the simulated device: T1 per qubit, "
         "in microseconds (synthetic).",
     },
-    workflows={ECHO.name: ECHO},
+    workflows={w.name: w for w in (ECHO, T1, CALIBRATE)},
 )
 
 BACKENDS: dict[str, Backend] = {SIM_QPU.name: SIM_QPU}

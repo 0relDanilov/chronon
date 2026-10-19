@@ -6,13 +6,12 @@ Postgres, so "N polls, 0 DB reads" is a measured claim.
 """
 
 import uuid
-from collections.abc import Callable
 from typing import Annotated, Any
 
 from fastapi import Body, Depends, FastAPI, HTTPException, Response
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, generate_latest
 
-from chronon import schema, tasks
+from chronon import queue, schema, tasks
 from chronon.auth import Principal
 from chronon.backends import BACKENDS, Workflow
 from chronon.contract import (
@@ -34,10 +33,6 @@ DB_READS = Counter(
     "chronon_db_reads", "Postgres reads made by the task API", ["path"]
 )
 SUBMITS = Counter("chronon_submit", "Tasks accepted", ["backend", "workflow"])
-
-# How device workflows are queued; set by the queue module once it exists.
-Dispatcher = Callable[[str, str, Workflow, Principal, dict[str, Any]], None]
-DEVICE_DISPATCH: dict[str, Dispatcher] = {}
 
 
 @app.get("/healthz")
@@ -125,12 +120,10 @@ def submit(
     if w.executor == "inline":
         _run_inline(task_id, backend, w, caller, payload)
     else:
-        dispatch = DEVICE_DISPATCH.get(backend)
-        if dispatch is None:
-            raise HTTPException(
-                503, f"Backend {backend} has no device queue configured."
-            )
-        dispatch(task_id, backend, w, caller, payload)
+        try:
+            queue.submit(task_id, backend, w.name, caller.user_id, payload)
+        except queue.QueueFull as e:
+            raise HTTPException(429, str(e)) from e
     SUBMITS.labels(backend, workflow).inc()
     return TaskCreated(task_id=task_id)
 
@@ -189,10 +182,6 @@ def poll(backend: str, task_id: str, caller: Caller) -> TaskState:
     return _owned_state(backend, task_id, caller)
 
 
-# How device tasks are revoked; set by the queue module once it exists.
-DEVICE_REVOKE: dict[str, Callable[[str, str], TaskStatus]] = {}
-
-
 @app.delete("/task/{backend}/{task_id}")
 def revoke(backend: str, task_id: str, caller: Caller) -> TaskState:
     """Revoke a task (the client's Ctrl-C handler, computers.py:399-408).
@@ -211,10 +200,5 @@ def revoke(backend: str, task_id: str, caller: Caller) -> TaskState:
     state = _owned_state(backend, task_id, caller, count=False)
     if state.task_status in TERMINAL:
         return state
-    revoke_device = DEVICE_REVOKE.get(backend)
-    if revoke_device is not None:
-        status = revoke_device(backend, task_id)
-    else:
-        tasks.set_status(task_id, TaskStatus.REVOKED)
-        status = TaskStatus.REVOKED
+    status = queue.revoke(backend, task_id)
     return TaskState(task_status=status, task_result=state.task_result)
