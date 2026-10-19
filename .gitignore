@@ -19,3 +19,5 @@ site/
 .ipynb_checkpoints/
 .DS_Store
 .logs/
+*.swp
+*.swo
