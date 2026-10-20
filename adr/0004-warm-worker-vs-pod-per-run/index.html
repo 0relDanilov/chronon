@@ -1267,7 +1267,7 @@
 
 
 <h1 id="adr-0004-a-warm-worker-for-short-exclusive-runs-argo-workflows-for-long-or-parallel-work">ADR-0004: A warm worker for short exclusive runs; Argo Workflows for long or parallel work<a class="headerlink" href="#adr-0004-a-warm-worker-for-short-exclusive-runs-argo-workflows-for-long-or-parallel-work" title="Permanent link">&para;</a></h1>
-<p><strong>Status:</strong> accepted (draft; numbers pending) · Mon 19 Oct 2026</p>
+<p><strong>Status:</strong> accepted (draft) · Mon 19 Oct 2026</p>
 <h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
 <p>Device runs are short (≈3 s including reconfigure and reset) and exclusive (one
 at a time). Some work is long and parallel instead, like the Stark-map fan-out.
@@ -1330,9 +1330,24 @@ cost is amortized over minutes (the Stark-map backend).</p>
 <td><code>overhead.py --runs 2</code>, Mon 23:47</td>
 </tr>
 <tr>
-<td>Pod per run vs warm worker: mean and p95, 10 runs each</td>
-<td><em>to be measured Tuesday</em></td>
-<td><code>uv run --extra dev python scripts/rehearsal/overhead.py --runs 10</code></td>
+<td><strong>10 runs each</strong>: submit→start mean / p95</td>
+<td>warm 0.08 / 0.11 s; pod per run 3.47 / 3.97 s</td>
+<td><code>uv run --extra dev python scripts/rehearsal/overhead.py --runs 10</code>, Tue 20 Oct 13:05</td>
+</tr>
+<tr>
+<td>10 runs each: submit→done mean / p95</td>
+<td>warm 2.68 / 2.71 s; pod per run 9.43 / 10.07 s (≈3.5×)</td>
+<td>same</td>
+</tr>
+<tr>
+<td>10 runs: <code>argo submit</code>→<code>argo wait</code> wall (incl. Argo bookkeeping)</td>
+<td>20.46 / 20.76 s</td>
+<td>same</td>
+</tr>
+<tr>
+<td>Laptop↔Docker VM clock skew (not subtracted)</td>
+<td>+65 ms</td>
+<td>same</td>
 </tr>
 </tbody>
 </table>

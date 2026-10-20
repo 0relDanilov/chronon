@@ -1156,6 +1156,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#tue-20-oct-2026-the-50-student-run-and-the-overhead-measurement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tue 20 Oct 2026: the 50-student run and the overhead measurement
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1239,6 +1250,17 @@
     <span class="md-ellipsis">
       
         Mon 19 Oct 2026: R5 scripts, smoke-tested (overnight)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tue-20-oct-2026-the-50-student-run-and-the-overhead-measurement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tue 20 Oct 2026: the 50-student run and the overhead measurement
       
     </span>
   </a>
@@ -1470,6 +1492,21 @@ reads. 77 s and 76 s wall. The 50-student runs are for Tuesday morning.</p>
 submit→start warm 0.24 s vs pod 11.46 s; submit→done 2.85 s vs 17.34 s;
 <code>argo submit</code>→<code>argo wait</code> 25.6 s. Laptop↔Docker VM skew +70 ms. Two runs
 aren't a measurement; the 10-run result is for Tuesday.</p>
+<h2 id="tue-20-oct-2026-the-50-student-run-and-the-overhead-measurement">Tue 20 Oct 2026: the 50-student run and the overhead measurement<a class="headerlink" href="#tue-20-oct-2026-the-50-student-run-and-the-overhead-measurement" title="Permanent link">&para;</a></h2>
+<p><strong>12:56 · Health check.</strong> <code>make contract</code> 11 passed; 10/10 Argo CD apps
+Synced/Healthy; <code>chronon-seed</code> Complete. Nothing to fix.</p>
+<p><strong>12:57 · 50-student run, fifo</strong> (<code>make rehearsal MODE=fifo</code>): student wait
+p50/p95/max 122.6/184.5/190.5 s; last student done 195.4 s after the cohort
+arrived; greedy share until then 27.9%; 6,672 polls, 0 DB reads; utilization
+99.5%; student-01 on the real client OK. 207 s wall.</p>
+<p><strong>13:01 · 50-student run, fair</strong> (<code>make rehearsal MODE=fair</code>): student wait
+p50/p95/max 74.9/136.6/142.5 s; last student 147.4 s; greedy share 4.5%; 175
+greedy submissions refused with 429; 4,742 polls, 0 DB reads; utilization
+99.5%. 208 s wall.</p>
+<p><strong>13:05 · Overhead, 10 runs each</strong> (<code>overhead.py --runs 10</code>): submit→start
+mean/p95 warm 0.08/0.11 s vs pod per run 3.47/3.97 s; submit→done 2.68/2.71 s
+vs 9.43/10.07 s; <code>argo submit</code>→<code>argo wait</code> 20.46 s. Clock skew +65 ms. The
+earlier 2-run smoke (11.46 s) included a cold first pod.</p>
 
 
 

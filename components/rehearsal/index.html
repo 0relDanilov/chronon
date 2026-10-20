@@ -755,10 +755,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#smoke-run-5-students-not-the-50-student-result" class="md-nav__link">
+  <a href="#50-student-run-tue-20-oct-1257-and-1301" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Smoke run (5 students, not the 50-student result)
+        50-student run (Tue 20 Oct, 12:57 and 13:01)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#smoke-run-5-students-earlier-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Smoke run (5 students, earlier check)
       
     </span>
   </a>
@@ -1228,10 +1239,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#smoke-run-5-students-not-the-50-student-result" class="md-nav__link">
+  <a href="#50-student-run-tue-20-oct-1257-and-1301" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Smoke run (5 students, not the 50-student result)
+        50-student run (Tue 20 Oct, 12:57 and 13:01)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#smoke-run-5-students-earlier-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Smoke run (5 students, earlier check)
       
     </span>
   </a>
@@ -1333,7 +1355,66 @@ the real client's result; the rejection's detail. Output goes to
 <code>.logs/rehearsal/</code>: <code>rehearsal-&lt;mode&gt;.json</code> and <code>rehearsal-&lt;mode&gt;.png</code> (a
 timeline of who held the device, plus the wait CDF; both modes once both have
 run).</p>
-<h2 id="smoke-run-5-students-not-the-50-student-result">Smoke run (5 students, not the 50-student result)<a class="headerlink" href="#smoke-run-5-students-not-the-50-student-result" title="Permanent link">&para;</a></h2>
+<h2 id="50-student-run-tue-20-oct-1257-and-1301">50-student run (Tue 20 Oct, 12:57 and 13:01)<a class="headerlink" href="#50-student-run-tue-20-oct-1257-and-1301" title="Permanent link">&para;</a></h2>
+<p>50 students + <code>greedy-01</code> (20 runs), simulated device, <code>make rehearsal
+MODE=fifo</code> then <code>MODE=fair</code>.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>fifo</th>
+<th>fair</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>student wait p50 / p95 / max</td>
+<td>122.6 / 184.5 / 190.5 s</td>
+<td>74.9 / 136.6 / 142.5 s</td>
+</tr>
+<tr>
+<td>total as a student sees it p50 / p95</td>
+<td>127.0 / 188.9 s</td>
+<td>78.8 / 141.1 s</td>
+</tr>
+<tr>
+<td>last student done after the cohort arrived</td>
+<td>195.4 s</td>
+<td>147.4 s</td>
+</tr>
+<tr>
+<td>greedy share of device time until the last student</td>
+<td>27.9%</td>
+<td>4.5%</td>
+</tr>
+<tr>
+<td>greedy submissions refused (429)</td>
+<td>0</td>
+<td>175</td>
+</tr>
+<tr>
+<td>polls served · DB reads while polling</td>
+<td>6,672 · 0</td>
+<td>4,742 · 0</td>
+</tr>
+<tr>
+<td>device utilization</td>
+<td>99.5%</td>
+<td>99.5%</td>
+</tr>
+<tr>
+<td>student-01 on the real client</td>
+<td>OK</td>
+<td>OK</td>
+</tr>
+</tbody>
+</table>
+<p>What it means: one device serves ≈2.8 s per run, so 50 runs are ≈140 s of
+device time under either policy. Fair removes the greedy user's 20-run
+(≈56 s) head start from everyone's wait and caps its queue at 5. For a
+300-person workshop on one device, ≈14 minutes of device time is the floor
+under any policy: scheduling decides who waits, capacity decides how long.</p>
+<h2 id="smoke-run-5-students-earlier-check">Smoke run (5 students, earlier check)<a class="headerlink" href="#smoke-run-5-students-earlier-check" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -1381,8 +1462,32 @@ run).</p>
 time on an idle device. <em>Start</em> is when the device code begins: the warm
 task's <code>started_at</code>, or the pod's first log line <code>CHRONON_START</code>, printed
 before any import, so image start and Python imports count as pod overhead.
-The script prints the laptop↔Docker VM clock skew (+70 ms in the smoke run).</p>
-<p>Smoke run, <strong>2 runs each</strong> (not a measurement):</p>
+The script prints the laptop↔Docker VM clock skew (+65 ms in the 10-run measurement).</p>
+<p><strong>10 runs each</strong> (Tue 20 Oct 13:05, <code>overhead.py --runs 10</code>):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>submit → start mean / p95</th>
+<th>submit → done mean / p95</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>warm worker</td>
+<td>0.08 / 0.11 s</td>
+<td>2.68 / 2.71 s</td>
+</tr>
+<tr>
+<td>pod per run</td>
+<td>3.47 / 3.97 s</td>
+<td>9.43 / 10.07 s</td>
+</tr>
+</tbody>
+</table>
+<p>Clock skew +65 ms. A pod per run adds ≈3.4 s before the device code starts,
+plus ≈3 s of imports inside the pod: ≈3.5× the warm worker end to end.</p>
+<p>Earlier smoke run, <strong>2 runs each</strong> (its first pod was cold):</p>
 <table>
 <thead>
 <tr>

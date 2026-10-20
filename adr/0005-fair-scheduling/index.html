@@ -1318,6 +1318,9 @@ keys of a backend would need one hash tag, <code>{sim-qpu}</code>, to stay on on
 <li>Switching modes strands nothing: pop drains the other mode's structures
   too.</li>
 <li>The cap applies only to queued runs, not to the one running.</li>
+<li>Fair doesn't make one device faster: 50 runs of ≈2.8 s are ≈140 s of
+  device time under either policy. It removes the greedy user's head start
+  (20 runs ≈ 56 s) from everyone else's wait and bounds its queue.</li>
 </ul>
 <h2 id="measured-numbers">Measured numbers<a class="headerlink" href="#measured-numbers" title="Permanent link">&para;</a></h2>
 <table>
@@ -1340,9 +1343,29 @@ keys of a backend would need one hash tag, <code>{sim-qpu}</code>, to stay on on
 <td><code>make rehearsal MODE=fifo USERS=5</code> / <code>MODE=fair</code>, Mon 23:42</td>
 </tr>
 <tr>
-<td>Rehearsal, 50 students</td>
-<td><em>Tuesday</em></td>
-<td><code>make rehearsal MODE=fifo</code> / <code>MODE=fair</code></td>
+<td><strong>50-student run</strong>, + greedy (20 runs): student wait p50 / p95</td>
+<td>fifo 122.6 / 184.5 s; fair 74.9 / 136.6 s</td>
+<td><code>make rehearsal MODE=fifo</code> / <code>MODE=fair</code>, Tue 20 Oct 12:57 / 13:01</td>
+</tr>
+<tr>
+<td>50-student run: greedy share of device time until the last student finished</td>
+<td>fifo 27.9%; fair 4.5%</td>
+<td>same</td>
+</tr>
+<tr>
+<td>50-student run: last student done after the cohort arrived</td>
+<td>fifo 195.4 s; fair 147.4 s</td>
+<td>same</td>
+</tr>
+<tr>
+<td>50-student run: polls served · DB reads while polling</td>
+<td>fifo 6,672 · 0; fair 4,742 · 0</td>
+<td>same</td>
+</tr>
+<tr>
+<td>50-student run: greedy submissions refused (429)</td>
+<td>fifo 0; fair 175</td>
+<td>same</td>
 </tr>
 </tbody>
 </table>

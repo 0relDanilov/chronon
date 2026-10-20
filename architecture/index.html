@@ -1177,7 +1177,7 @@
 
 
 <h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<p><strong>Status:</strong> rungs 1–3 exist: the local site (kind, Cilium, Argo CD, cert-manager, CNPG, Valkey, Argo Workflows, the Gateway) and the task and state services, which pass the contract test with the real client, and the simulated sim-qpu device with its fifo/fair queue. Each component below gets
+<p><strong>Status:</strong> rungs 1–3 exist: the local site (kind, Cilium, Argo CD, cert-manager, CNPG, Valkey, Argo Workflows, the Gateway) and the task and state services, which pass the contract test with the real client, and the simulated sim-qpu device with its fifo/fair queue. Only one site (<code>local</code>) exists, and the ARC backend is planned, not built. Each component below gets
 its own page under <em>Components</em> once it's built; until then it's listed as
 <em>planned</em>.</p>
 <h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
@@ -1203,7 +1203,7 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <tr>
 <td><code>src/chronon/api/app.py</code></td>
 <td>task API: <code>/task/{backend}/{workflow}</code>, <code>/task/{backend}/{id}</code>, <code>DELETE</code>, <code>/metrics</code></td>
-<td>exists (inline <code>echo</code>; device queue in rung 3)</td>
+<td>exists (inline <code>echo</code>; <code>t1</code> and <code>calibrate</code> through the device queue)</td>
 </tr>
 <tr>
 <td><code>src/chronon/state/app.py</code></td>
@@ -1278,11 +1278,11 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 <tr>
 <td><code>scripts/rehearsal/</code></td>
 <td>the workshop rehearsal and overhead measurement</td>
-<td>exists (smoke-tested with 5 users)</td>
+<td>exists (50-student runs in both modes and a 10-run overhead measurement done)</td>
 </tr>
 <tr>
 <td><code>notebooks/demo.ipynb</code></td>
-<td>the demo: connect, summary, t1 with fit, calibrations and trend</td>
+<td>the demo: connect, summary, t1 with fit, calibrations and trend, an expired token's 401</td>
 <td>exists</td>
 </tr>
 <tr>
@@ -1322,7 +1322,7 @@ its own page under <em>Components</em> once it's built; until then it's listed a
 </tr>
 <tr>
 <td><code>.github/workflows/ci.yml</code></td>
-<td>gates, images, docs deploy</td>
+<td>gates; <code>base</code> image to GHCR; docs built and pushed to the <code>gh-pages</code> branch (GitHub Pages isn't enabled, so the site isn't published)</td>
 <td>exists</td>
 </tr>
 </tbody>
