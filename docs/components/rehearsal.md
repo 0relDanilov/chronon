@@ -34,7 +34,29 @@ the real client's result; the rejection's detail. Output goes to
 timeline of who held the device, plus the wait CDF; both modes once both have
 run).
 
-## Smoke run (5 students, not the 50-student result)
+## 50-student run (Tue 20 Oct, 12:57 and 13:01)
+
+50 students + `greedy-01` (20 runs), simulated device, `make rehearsal
+MODE=fifo` then `MODE=fair`.
+
+| | fifo | fair |
+|---|---|---|
+| student wait p50 / p95 / max | 122.6 / 184.5 / 190.5 s | 74.9 / 136.6 / 142.5 s |
+| total as a student sees it p50 / p95 | 127.0 / 188.9 s | 78.8 / 141.1 s |
+| last student done after the cohort arrived | 195.4 s | 147.4 s |
+| greedy share of device time until the last student | 27.9% | 4.5% |
+| greedy submissions refused (429) | 0 | 175 |
+| polls served · DB reads while polling | 6,672 · 0 | 4,742 · 0 |
+| device utilization | 99.5% | 99.5% |
+| student-01 on the real client | OK | OK |
+
+What it means: one device serves ≈2.8 s per run, so 50 runs are ≈140 s of
+device time under either policy. Fair removes the greedy user's 20-run
+(≈56 s) head start from everyone's wait and caps its queue at 5. For a
+300-person workshop on one device, ≈14 minutes of device time is the floor
+under any policy: scheduling decides who waits, capacity decides how long.
+
+## Smoke run (5 students, earlier check)
 
 | | fifo | fair |
 |---|---|---|
@@ -53,9 +75,19 @@ Both paths run identical device code (reconfigure → T1 → reset), one run at 
 time on an idle device. *Start* is when the device code begins: the warm
 task's `started_at`, or the pod's first log line `CHRONON_START`, printed
 before any import, so image start and Python imports count as pod overhead.
-The script prints the laptop↔Docker VM clock skew (+70 ms in the smoke run).
+The script prints the laptop↔Docker VM clock skew (+65 ms in the 10-run measurement).
 
-Smoke run, **2 runs each** (not a measurement):
+**10 runs each** (Tue 20 Oct 13:05, `overhead.py --runs 10`):
+
+| | submit → start mean / p95 | submit → done mean / p95 |
+|---|---|---|
+| warm worker | 0.08 / 0.11 s | 2.68 / 2.71 s |
+| pod per run | 3.47 / 3.97 s | 9.43 / 10.07 s |
+
+Clock skew +65 ms. A pod per run adds ≈3.4 s before the device code starts,
+plus ≈3 s of imports inside the pod: ≈3.5× the warm worker end to end.
+
+Earlier smoke run, **2 runs each** (its first pod was cold):
 
 | | submit → start | submit → done |
 |---|---|---|

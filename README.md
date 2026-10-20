@@ -1,6 +1,6 @@
 # chronon
 
-chronon is an independent learning project built over two days to understand the shape of a time-shared quantum-datacenter platform: a GitOps-managed Kubernetes platform, laid out for multiple sites, serving a simulated time-shared device and a parallel classical-compute backend to many users through the public `iqcc-cloud-client` contract. It is not affiliated with, endorsed by, or connected to IQCC or Quantum Machines; it never contacts their services. The "device" is a simulation. See `docs/built-with-claude-code.md` for how it was built and verified.
+chronon is an independent learning project built over two days to understand the shape of a time-shared quantum-datacenter platform: a GitOps-managed Kubernetes platform serving a simulated time-shared device to many users through the public `iqcc-cloud-client` contract. One site (`local`, on kind) exists; the repository is laid out so that more sites can be added. A parallel classical-compute backend (ARC Stark maps on Argo Workflows) is planned, not built. It is not affiliated with, endorsed by, or connected to IQCC or Quantum Machines; it never contacts their services. The "device" is a simulation. See `docs/built-with-claude-code.md` for how it was built and verified.
 
 ## Status
 

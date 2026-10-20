@@ -36,6 +36,9 @@ keys of a backend would need one hash tag, `{sim-qpu}`, to stay on one shard.
 - Switching modes strands nothing: pop drains the other mode's structures
   too.
 - The cap applies only to queued runs, not to the one running.
+- Fair doesn't make one device faster: 50 runs of ≈2.8 s are ≈140 s of
+  device time under either policy. It removes the greedy user's head start
+  (20 runs ≈ 56 s) from everyone else's wait and bounds its queue.
 
 ## Measured numbers
 
@@ -43,4 +46,8 @@ keys of a backend would need one hash tag, `{sim-qpu}`, to stay on one shard.
 |---|---|---|
 | Order, 20 greedy queued then 5 users × 1 (unit test, real Lua) | fair: all 5 within the first 6 pops; fifo: after all 20 | `pytest tests/unit/test_queue.py` |
 | Smoke rehearsal, 5 students + greedy (20 runs): student wait p50/p95; greedy share until last student | fifo 60.1/63.6 s, 79.7%; fair 9.5/15.4 s, 32.8% | `make rehearsal MODE=fifo USERS=5` / `MODE=fair`, Mon 23:42 |
-| Rehearsal, 50 students | *Tuesday* | `make rehearsal MODE=fifo` / `MODE=fair` |
+| **50-student run**, + greedy (20 runs): student wait p50 / p95 | fifo 122.6 / 184.5 s; fair 74.9 / 136.6 s | `make rehearsal MODE=fifo` / `MODE=fair`, Tue 20 Oct 12:57 / 13:01 |
+| 50-student run: greedy share of device time until the last student finished | fifo 27.9%; fair 4.5% | same |
+| 50-student run: last student done after the cohort arrived | fifo 195.4 s; fair 147.4 s | same |
+| 50-student run: polls served · DB reads while polling | fifo 6,672 · 0; fair 4,742 · 0 | same |
+| 50-student run: greedy submissions refused (429) | fifo 0; fair 175 | same |

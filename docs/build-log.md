@@ -249,3 +249,23 @@ reads. 77 s and 76 s wall. The 50-student runs are for Tuesday morning.
 submit→start warm 0.24 s vs pod 11.46 s; submit→done 2.85 s vs 17.34 s;
 `argo submit`→`argo wait` 25.6 s. Laptop↔Docker VM skew +70 ms. Two runs
 aren't a measurement; the 10-run result is for Tuesday.
+
+## Tue 20 Oct 2026: the 50-student run and the overhead measurement
+
+**12:56 · Health check.** `make contract` 11 passed; 10/10 Argo CD apps
+Synced/Healthy; `chronon-seed` Complete. Nothing to fix.
+
+**12:57 · 50-student run, fifo** (`make rehearsal MODE=fifo`): student wait
+p50/p95/max 122.6/184.5/190.5 s; last student done 195.4 s after the cohort
+arrived; greedy share until then 27.9%; 6,672 polls, 0 DB reads; utilization
+99.5%; student-01 on the real client OK. 207 s wall.
+
+**13:01 · 50-student run, fair** (`make rehearsal MODE=fair`): student wait
+p50/p95/max 74.9/136.6/142.5 s; last student 147.4 s; greedy share 4.5%; 175
+greedy submissions refused with 429; 4,742 polls, 0 DB reads; utilization
+99.5%. 208 s wall.
+
+**13:05 · Overhead, 10 runs each** (`overhead.py --runs 10`): submit→start
+mean/p95 warm 0.08/0.11 s vs pod per run 3.47/3.97 s; submit→done 2.68/2.71 s
+vs 9.43/10.07 s; `argo submit`→`argo wait` 20.46 s. Clock skew +65 ms. The
+earlier 2-run smoke (11.46 s) included a cold first pod.
